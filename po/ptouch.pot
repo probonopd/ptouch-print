@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ptouch-print\n"
 "Report-Msgid-Bugs-To: dominic@familie-radermacher.ch\n"
-"POT-Creation-Date: 2025-08-11 09:46+0200\n"
+"POT-Creation-Date: 2025-08-11 10:05+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -265,22 +265,22 @@ msgstr ""
 msgid "Options --force_tape_width and --info can't be used together"
 msgstr ""
 
-#: src/ptouch-print.c:610
+#: src/ptouch-print.c:609
 #, c-format
 msgid "ptouch_init() failed\n"
 msgstr ""
 
-#: src/ptouch-print.c:613
+#: src/ptouch-print.c:612
 #, c-format
 msgid "ptouch_getstatus() failed\n"
 msgstr ""
 
-#: src/ptouch-print.c:627
+#: src/ptouch-print.c:626
 #, c-format
 msgid "maximum printing width for this printer is %ldpx\n"
 msgstr ""
 
-#: src/ptouch-print.c:628
+#: src/ptouch-print.c:627
 #, c-format
 msgid "maximum printing width for this tape is %ldpx\n"
 msgstr ""

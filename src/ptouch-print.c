@@ -94,7 +94,7 @@ static struct argp_option options[] = {
 	{ "cutmark", 'c', 0, 0, "Print a mark where the tape should be cut", 2},
 	{ "pad", 'p', "<n>", 0, "Add n pixels padding (blank tape)", 2},
 	{ "chain", 10, 0, 0, "Skip final feed of label and any automatic cut", 2},
-	{ "newline", 'n', "<line>", 0, "Add 1-4 lines for multiline text", 2},
+	{ "newline", 'n', "<text>", 0, "Add text in a new line (up to 4 lines)", 2},
 
 	{ 0, 0, 0, 0, "other commands:", 3},
 	{ "info", 20, 0, 0, "Show info about detected tape", 3},

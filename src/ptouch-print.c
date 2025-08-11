@@ -95,7 +95,7 @@ static struct argp_option options[] = {
 	{ "pad", 'p', "<n>", 0, "Add n pixels padding (blank tape)", 2},
 	{ "chain", 10, 0, 0, "Skip final feed of label and any automatic cut", 2},
 	{ "newline", 'n', "<line>", 0, "Add 1-4 lines for multiline text", 2},
-	
+
 	{ 0, 0, 0, 0, "other commands:", 3},
 	{ "info", 20, 0, 0, "Show info about detected tape", 3},
 	{ "list-supported", 21, 0, 0, "Show printers supported by this version", 3},
@@ -105,7 +105,7 @@ static struct argp_option options[] = {
 static struct argp argp = { options, parse_opt, args_doc, doc, 0, 0, 0 };
 
 struct arguments arguments = {
-	.chain =false,
+	.chain = false,
 	.copies = 1,
 	.debug = false,
 	.info = false,
@@ -351,7 +351,7 @@ gdImage *render_text(char *font, char *line[], int lines, int print_width)
 		}
 		printf(_("choosing font size=%i\n"), fsz);
 	}
-	for(i = 0; i < lines; ++i) {
+	for (i = 0; i < lines; ++i) {
 		tmp = needed_width(line[i], arguments.font_file, fsz);
 		if (tmp > x) {
 			x = tmp;
@@ -485,22 +485,22 @@ gdImage *img_padding(int print_width, int length)
 void add_job(job_type_t type, int n, char *line)
 {
 	job_t *new_job = (job_t*)malloc(sizeof(job_t));
-	if(!new_job) {
-		fprintf(stderr, "Memory allocation failed\n"); 
+	if (!new_job) {
+		fprintf(stderr, "Memory allocation failed\n");
 		return;
 	}
-
 	new_job->type = type;
-	if(type == JOB_TEXT && n > MAX_LINES) {
+	if (type == JOB_TEXT && n > MAX_LINES) {
 		n = MAX_LINES;
 	}
 	new_job->n = n;
 	new_job->lines[0] = line;
-	for(int i=1; i<MAX_LINES; i++)
+	for (int i=1; i<MAX_LINES; ++i) {
 		new_job->lines[i] = NULL;
+	}
 	new_job->next = NULL;
 
-	if(!last_added_job) { // just created the first job
+	if (!last_added_job) {	// just created the first job
 		jobs = last_added_job = new_job;
 		return;
 	}
@@ -534,10 +534,10 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 			break;
 		case 'i': // image
 			add_job(JOB_IMAGE, 1, arg);
-			 break;
+			break;
 		case 't': // text
 			add_job(JOB_TEXT, 1, arg);
-			 break;
+			break;
 		case 'c': // cutmark
 			add_job(JOB_CUTMARK, 0, NULL);
 			break;
@@ -548,12 +548,12 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 			arguments->chain = true;
 			break;
 		case 'n': // newline
-			if(!last_added_job || last_added_job->type != JOB_TEXT) {
+			if (!last_added_job || last_added_job->type != JOB_TEXT) {
 				add_job(JOB_TEXT, 1, arg);
 				break;
 			}
 
-			if(last_added_job->n >= MAX_LINES) { // max number of lines reached
+			if (last_added_job->n >= MAX_LINES) { // max number of lines reached
 				argp_failure(state, 1, EINVAL, _("Only up to %d lines are supported"), MAX_LINES);
 				break;
 			}
@@ -581,7 +581,6 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 		default:
 			return ARGP_ERR_UNKNOWN;
 	}
-	
 	return 0;
 }
 
@@ -623,7 +622,7 @@ int main(int argc, char *argv[])
 		print_width = arguments.forced_tape_width;
 	}
 
-	if(arguments.info) {
+	if (arguments.info) {
 		printf(_("maximum printing width for this printer is %ldpx\n"), ptouch_get_max_width(ptdev));
 		printf(_("maximum printing width for this tape is %ldpx\n"), ptouch_get_tape_width(ptdev));
 		printf("media type = %02x (%s)\n", ptdev->status->media_type, pt_mediatype(ptdev->status->media_type));
@@ -637,16 +636,17 @@ int main(int argc, char *argv[])
 		exit(0);
 	}
 
-	// iterate through all print jobs	
-	for(job_t *job = jobs; job != NULL; job = job->next) {
-		if(arguments.debug) {
+	// iterate through all print jobs
+	for (job_t *job = jobs; job != NULL; job = job->next) {
+		if (arguments.debug) {
 			printf("job %p: type=%d | n=%d", job, job->type, job->n);
-			for(int i=0; i<MAX_LINES; i++)
+			for (int i=0; i<MAX_LINES; ++i) {
 				printf(" | %s", job->lines[i]);
+			}
 			printf(" | next=%p\n", job->next);
 		}
 
-		switch(job->type) {
+		switch (job->type) {
 			case JOB_IMAGE:
 				if ((im = image_load(job->lines[0])) == NULL) {
 					printf(_("failed to load image file\n"));
@@ -683,7 +683,7 @@ int main(int argc, char *argv[])
 	}
 
 	// clean up job list
-	for(job_t *job = jobs; job != NULL; ) {
+	for (job_t *job = jobs; job != NULL; ) {
 		job_t *next = job->next;
 		free(job);
 		job = next;

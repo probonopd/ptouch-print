@@ -28,6 +28,12 @@ once in any order, and will be executed in the given order.
 .TP
 .BR \-\-debug
 Enables printing of debugging information.
+.TP
+.BR \-\-timeout\  \fI<time>
+Set the seconds ptouch-print is waiting for finishing a previous ptouch-print command.
+Default is 1 second. 0 (zero) means wait forever.
+Useful if ptouch-print is used in a script multiple times, and the device is waiting for the user
+to use the mechanical cutter.
 
 .SS "Font selection options"
 .TP

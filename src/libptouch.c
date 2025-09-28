@@ -345,11 +345,11 @@ void ptouch_rawstatus(uint8_t raw[32])
 	return;
 }
 
-int ptouch_getstatus(ptouch_dev ptdev)
+int ptouch_getstatus(ptouch_dev ptdev, int timeout)
 {
 	char cmd[]="\x1biS";	/* 1B 69 53 = ESC i S = Status info request */
 	uint8_t buf[32] = {};
-	int i, r, tx=0, tries=0;
+	int i, r, tx=0, tries=0, maxtries=timeout*10;
 	struct timespec w;
 
 	if (!ptdev) {
@@ -367,8 +367,8 @@ int ptouch_getstatus(ptouch_dev ptdev)
 			return -1;
 		}
 		++tries;
-		if (tries > 10) {
-			fprintf(stderr, _("timeout while waiting for status response\n"));
+		if (timeout && tries > maxtries) {
+			fprintf(stderr, _("timeout (%i sec) while waiting for status response\n"), timeout);
 			return -1;
 		}
 	}

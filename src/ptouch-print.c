@@ -48,6 +48,7 @@ struct arguments {
 	int forced_tape_width;
 	char *save_png;
 	int verbose;
+	int timeout;
 };
 
 typedef enum { JOB_CUTMARK, JOB_IMAGE, JOB_PAD, JOB_TEXT, JOB_UNDEFINED } job_type_t;
@@ -87,6 +88,7 @@ static struct argp_option options[] = {
 	{ "writepng", 4, "<file>", 0, "Instead of printing, write output to png <file>", 1},
 	{ "force-tape-width", 5, "<px>", 0, "Set tape width in pixels, use together with --writepng without a printer connected", 1},
 	{ "copies", 6, "<number>", 0, "Sets the number of identical prints", 1},
+	{ "timeout", 7, "<seconds>", 0, "Set timeout waiting for finishing previous job. Default:1, 0 means infinity", 1},
 
 	{ 0, 0, 0, 0, "print commands:", 2},
 	{ "image", 'i', "<file>", 0, "Print the given image which must be a 2 color (black/white) png", 2},
@@ -115,7 +117,8 @@ struct arguments arguments = {
 	.font_size = 0,
 	.forced_tape_width = 0,
 	.save_png = NULL,
-	.verbose = 0
+	.verbose = 0,
+	.timeout = 1
 };
 
 job_t *jobs = NULL;
@@ -532,6 +535,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 		case 6: // copies
 			arguments->copies = strtol(arg, NULL, 10);
 			break;
+		case 7: // timeout
+			arguments->timeout = strtol(arg, NULL, 10);
+			break;
 		case 'i': // image
 			add_job(JOB_IMAGE, 1, arg);
 			break;
@@ -608,7 +614,7 @@ int main(int argc, char *argv[])
 		if (ptouch_init(ptdev) != 0) {
 			printf(_("ptouch_init() failed\n"));
 		}
-		if (ptouch_getstatus(ptdev) != 0) {
+		if (ptouch_getstatus(ptdev, arguments.timeout) != 0) {
 			printf(_("ptouch_getstatus() failed\n"));
 			return 1;
 		}

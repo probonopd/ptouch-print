@@ -88,7 +88,8 @@ struct _pt_dev_info ptdevs[] = {
 	/* printhead 128px, 180 dpi resolution */
 	/* 3,5/6/9/12/18 mm TZe Tapes, 12mm and 18mm tested */
 	/* 5,2/9/11,2 mm HSe heat shrink tubes not tested, probably requiring extension of struct _pt_tape_info */
-        {0x04f9, 0x2201, "PT-E310BT", 128, 180, FLAG_P700_INIT|FLAG_USE_INFO_CMD|FLAG_D460BT_MAGIC},
+	{0x04f9, 0x2201, "PT-E310BT", 128, 180, FLAG_P700_INIT|FLAG_USE_INFO_CMD|FLAG_D460BT_MAGIC},
+	{0x04f9, 0x2203, "PT-E560BT", 128, 180, FLAG_P700_INIT|FLAG_USE_INFO_CMD|FLAG_D460BT_MAGIC},
 	{0,0,"",0,0,0}
 };
 

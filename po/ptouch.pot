@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ptouch-print\n"
 "Report-Msgid-Bugs-To: dominic@familie-radermacher.ch\n"
-"POT-Creation-Date: 2025-09-28 08:03+0200\n"
+"POT-Creation-Date: 2025-10-31 08:04+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,138 +17,138 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/libptouch.c:105 src/libptouch.c:109 src/libptouch.c:113
+#: src/libptouch.c:106 src/libptouch.c:110 src/libptouch.c:114
 #, c-format
 msgid "out of memory\n"
 msgstr ""
 
-#: src/libptouch.c:117
+#: src/libptouch.c:118
 #, c-format
 msgid "libusb_init() failed\n"
 msgstr ""
 
-#: src/libptouch.c:126
+#: src/libptouch.c:127
 #, c-format
 msgid "failed to get device descriptor"
 msgstr ""
 
-#: src/libptouch.c:132
+#: src/libptouch.c:133
 #, c-format
 msgid "%s found on USB bus %d, device %d\n"
 msgstr ""
 
-#: src/libptouch.c:147
+#: src/libptouch.c:148
 #, c-format
 msgid "libusb_open error :%s\n"
 msgstr ""
 
-#: src/libptouch.c:153
+#: src/libptouch.c:154
 #, c-format
 msgid "error while detaching kernel driver: %s\n"
 msgstr ""
 
-#: src/libptouch.c:157
+#: src/libptouch.c:158
 #, c-format
 msgid "interface claim error: %s\n"
 msgstr ""
 
-#: src/libptouch.c:168
+#: src/libptouch.c:169
 #, c-format
 msgid ""
 "No P-Touch printer found on USB (remember to put switch to position E)\n"
 msgstr ""
 
-#: src/libptouch.c:188
+#: src/libptouch.c:189
 #, c-format
 msgid "debug: called ptouch_send() with NULL ptdev\n"
 msgstr ""
 
-#: src/libptouch.c:195
+#: src/libptouch.c:196
 #, c-format
 msgid "write error: %s\n"
 msgstr ""
 
-#: src/libptouch.c:199
+#: src/libptouch.c:200
 #, c-format
 msgid "write error: could send only %i of %ld bytes\n"
 msgstr ""
 
-#: src/libptouch.c:249
+#: src/libptouch.c:250
 #, c-format
 msgid "debug: called ptouch_info_cmd() with NULL ptdev\n"
 msgstr ""
 
-#: src/libptouch.c:291
+#: src/libptouch.c:292
 #, c-format
 msgid "debug: called ptouch_rasterstart() with NULL ptdev\n"
 msgstr ""
 
-#: src/libptouch.c:322
+#: src/libptouch.c:323
 #, c-format
 msgid "debug: called ptouch_finalize() with NULL ptdev\n"
 msgstr ""
 
-#: src/libptouch.c:337
+#: src/libptouch.c:338
 #, c-format
 msgid "debug: dumping raw status bytes\n"
 msgstr ""
 
-#: src/libptouch.c:356
+#: src/libptouch.c:357
 #, c-format
 msgid "debug: called ptouch_getstatus() with NULL ptdev\n"
 msgstr ""
 
-#: src/libptouch.c:366 src/libptouch.c:402
+#: src/libptouch.c:367 src/libptouch.c:403
 #, c-format
 msgid "read error: %s\n"
 msgstr ""
 
-#: src/libptouch.c:371
+#: src/libptouch.c:372
 #, c-format
 msgid "timeout (%i sec) while waiting for status response\n"
 msgstr ""
 
-#: src/libptouch.c:385
+#: src/libptouch.c:386
 #, c-format
 msgid "unknown tape width of %imm, please report this.\n"
 msgstr ""
 
-#: src/libptouch.c:391
+#: src/libptouch.c:392
 #, c-format
 msgid "got only 16 bytes... wondering what they are:\n"
 msgstr ""
 
-#: src/libptouch.c:395
+#: src/libptouch.c:396
 #, c-format
 msgid "read error: got %i instead of 32 bytes\n"
 msgstr ""
 
-#: src/libptouch.c:398
+#: src/libptouch.c:399
 #, c-format
 msgid "strange status:\n"
 msgstr ""
 
-#: src/libptouch.c:400
+#: src/libptouch.c:401
 #, c-format
 msgid "trying to flush junk\n"
 msgstr ""
 
-#: src/libptouch.c:405
+#: src/libptouch.c:406
 #, c-format
 msgid "got another %i bytes. now try again\n"
 msgstr ""
 
-#: src/libptouch.c:412
+#: src/libptouch.c:413
 #, c-format
 msgid "debug: called ptouch_get_tape_width() with NULL ptdev\n"
 msgstr ""
 
-#: src/libptouch.c:421
+#: src/libptouch.c:422
 #, c-format
 msgid "debug: called ptouch_get_max_width() with NULL ptdev\n"
 msgstr ""
 
-#: src/libptouch.c:433
+#: src/libptouch.c:434
 #, c-format
 msgid "debug: called ptouch_sendraster() with NULL ptdev\n"
 msgstr ""

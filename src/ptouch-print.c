@@ -40,6 +40,7 @@
 
 struct arguments {
 	bool chain;
+	bool precut;
 	int copies;
 	bool debug;
 	bool info;
@@ -65,7 +66,7 @@ void rasterline_setpixel(uint8_t* rasterline, size_t size, int pixel);
 int get_baselineoffset(char *text, char *font, int fsz);
 int find_fontsize(int want_px, char *font, char *text);
 int needed_width(char *text, char *font, int fsz);
-int print_img(ptouch_dev ptdev, gdImage *im, int chain);
+int print_img(ptouch_dev ptdev, gdImage *im, int chain, int precut);
 int write_png(gdImage *im, const char *file);
 gdImage *img_append(gdImage *in_1, gdImage *in_2);
 gdImage *img_cutmark(int print_width);
@@ -96,6 +97,7 @@ static struct argp_option options[] = {
 	{ "cutmark", 'c', 0, 0, "Print a mark where the tape should be cut", 2},
 	{ "pad", 'p', "<n>", 0, "Add n pixels padding (blank tape)", 2},
 	{ "chain", 10, 0, 0, "Skip final feed of label and any automatic cut", 2},
+	{ "precut", 11, 0, 0, "Add a cut before the label (useful in chain mode for cuts with minimal waste)", 2},
 	{ "newline", 'n', "<text>", 0, "Add text in a new line (up to 4 lines)", 2},
 
 	{ 0, 0, 0, 0, "other commands:", 3},
@@ -138,7 +140,7 @@ void rasterline_setpixel(uint8_t* rasterline, size_t size, int pixel)
 	return;
 }
 
-int print_img(ptouch_dev ptdev, gdImage *im, int chain)
+int print_img(ptouch_dev ptdev, gdImage *im, int chain, int precut)
 {
 	uint8_t rasterline[(ptdev->devinfo->max_px)/8];
 
@@ -181,9 +183,11 @@ int print_img(ptouch_dev ptdev, gdImage *im, int chain)
 		}
 	}
 	if ((ptdev->devinfo->flags & FLAG_HAS_PRECUT) == FLAG_HAS_PRECUT) {
-		ptouch_send_precut_cmd(ptdev, 1);
-		if (arguments.debug) {
-			printf(_("send precut command\n"));
+		if (precut) {
+			ptouch_send_precut_cmd(ptdev, 1);
+			if (arguments.debug) {
+				printf(_("send precut command\n"));
+			}
 		}
 	}
 	/* send chain command after precut, to allow precutting before chain */
@@ -553,6 +557,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 		case 10: // chain
 			arguments->chain = true;
 			break;
+		case 11: // precut
+			arguments->precut = true;
+			break;
 		case 'n': // newline
 			if (!last_added_job || last_added_job->type != JOB_TEXT) {
 				add_job(JOB_TEXT, 1, arg);
@@ -701,7 +708,7 @@ int main(int argc, char *argv[])
 			write_png(out, arguments.save_png);
 		} else {
 			for (int i = 0; i < arguments.copies; ++i) {
-				print_img(ptdev, out, arguments.chain);
+				print_img(ptdev, out, arguments.chain, arguments.precut);
 				if (ptouch_finalize(ptdev, ( arguments.chain || (i < arguments.copies-1) ) ) != 0) {
 					printf(_("ptouch_finalize(%d) failed\n"), arguments.chain);
 					return 2;

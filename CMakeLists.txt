@@ -14,6 +14,7 @@ find_package(GD REQUIRED)
 find_package(Git REQUIRED)
 find_package(PkgConfig REQUIRED)
 find_package(Intl REQUIRED)
+find_package(argp REQUIRED)
 
 pkg_check_modules(LIBUSB REQUIRED libusb-1.0)
 
@@ -26,6 +27,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 	${GD_INCLUDE_DIR}
 	${LIBUSB_INCLUDE_DIRS}
 	${Intl_INCLUDE_DIRS}
+	${ARGP_INCLUDE_DIR}
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
@@ -33,6 +35,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 	${LIBUSB_LIBRARIES}
 	${LIBUSB_LINK_LIBRARIES}
 	${Intl_LIBRARIES}
+	${ARGP_LIBRARIES}
 )
 
 target_sources(${PROJECT_NAME} PRIVATE

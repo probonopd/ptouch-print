@@ -631,11 +631,11 @@ int main(int argc, char *argv[])
 	if (arguments.info) {
 		printf(_("maximum printing width for this printer is %ldpx\n"), ptouch_get_max_width(ptdev));
 		printf(_("maximum printing width for this tape is %ldpx\n"), ptouch_get_tape_width(ptdev));
-		printf("media type = %02x (%s)\n", ptdev->status->media_type, pt_mediatype(ptdev->status->media_type));
+		printf("media type = 0x%02x (%s)\n", ptdev->status->media_type, pt_mediatype(ptdev->status->media_type));
 		printf("media width = %d mm\n", ptdev->status->media_width);
-		printf("tape color = %02x (%s)\n", ptdev->status->tape_color, pt_tapecolor(ptdev->status->tape_color));
-		printf("text color = %02x (%s)\n", ptdev->status->text_color, pt_textcolor(ptdev->status->text_color));
-		printf("error = %04x\n", ptdev->status->error);
+		printf("tape color = 0x%02x (%s)\n", ptdev->status->tape_color, pt_tapecolor(ptdev->status->tape_color));
+		printf("text color = 0x%02x (%s)\n", ptdev->status->text_color, pt_textcolor(ptdev->status->text_color));
+		printf("error = 0x%04x\n", ptdev->status->error);
 		if (arguments.debug) {
 			ptouch_rawstatus((uint8_t *)ptdev->status);
 		}

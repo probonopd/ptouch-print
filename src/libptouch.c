@@ -34,14 +34,15 @@
 
 /* Print area width in 180 DPI pixels */
 struct _pt_tape_info tape_info[]= {
-	{ 4, 24, 0.5},	/* 3.5 mm tape */
-	{ 6, 32, 1.0},	/* 6 mm tape */
-	{ 9, 52, 1.0},	/* 9 mm tape */
-	{12, 76, 2.0},	/* 12 mm tape */
+	{ 4,  24, 0.5},	/* 3.5 mm tape */
+	{ 6,  32, 1.0},	/*  6 mm tape */
+	{ 9,  52, 1.0},	/*  9 mm tape */
+	{12,  76, 2.0},	/* 12 mm tape */
 	{18, 120, 3.0},	/* 18 mm tape */
+	{21, 124, 3.0},	/* 21 mm tape */
 	{24, 128, 3.0},	/* 24 mm tape */
 	{36, 192, 4.5},	/* 36 mm tape */
-	{ 0, 0, 0.0}		/* terminating entry */
+	{ 0,   0, 0.0}	/* terminating entry */
 };
 
 struct _pt_dev_info ptdevs[] = {
@@ -337,7 +338,7 @@ void ptouch_rawstatus(uint8_t raw[32])
 {
 	fprintf(stderr, _("debug: dumping raw status bytes\n"));
 	for (int i=0; i<32; ++i) {
-		fprintf(stderr, "%02x ", raw[i]);
+		fprintf(stderr, "0x%02x ", raw[i]);
 		if (((i+1) % 16) == 0) {
 			fprintf(stderr, "\n");
 		}
@@ -472,10 +473,11 @@ const char* pt_mediatype(const uint8_t media_type)
 		case 0x01: return "Laminated tape"; break;
 		case 0x03: return "Non-laminated tape"; break;
 		case 0x04: return "Fabric tape"; break;
-		case 0x11: return "Heat-shrink tube"; break;
-		case 0x13: return "Fle tape"; break;
+		case 0x11: return "Heat-shrink tube"; break; // Seems wrong, should be 0x17
+		case 0x13: return "Flexi tape"; break;
 		case 0x14: return "Flexible ID tape"; break;
 		case 0x15: return "Satin tape"; break;
+		case 0x17: return "Heat-shrink tube"; break;
 		case 0xff: return "Incompatible tape"; break;
 		default: return "unknown";
 	}
@@ -509,6 +511,7 @@ const char* pt_tapecolor(const uint8_t tape_color)
 		case 0x61: return "Pink"; break;
 		case 0x62: return "Blue"; break;
 		case 0x70: return "Heat-shrink Tube"; break;
+		case 0x71: return "Heat-shrink Tube white"; break;
 		case 0x90: return "White(Flex. ID)"; break;
 		case 0x91: return "Yellow(Flex. ID)"; break;
 		case 0xf0: return "Cleaning"; break;

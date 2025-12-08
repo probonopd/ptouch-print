@@ -38,7 +38,10 @@
 
 #define P_NAME "ptouch-print"
 
+typedef enum { ALIGN_LEFT = 'l', ALIGN_CENTER = 'c', ALIGN_RIGHT = 'r' } align_type_t;
+
 struct arguments {
+	align_type_t align;
 	bool chain;
 	bool precut;
 	int copies;
@@ -51,7 +54,6 @@ struct arguments {
 	int verbose;
 	int timeout;
 };
-
 typedef enum { JOB_CUTMARK, JOB_IMAGE, JOB_PAD, JOB_TEXT, JOB_UNDEFINED } job_type_t;
 
 typedef struct job {
@@ -99,6 +101,7 @@ static struct argp_option options[] = {
 	{ "chain", 10, 0, 0, "Skip final feed of label and any automatic cut", 2},
 	{ "precut", 11, 0, 0, "Add a cut before the label (useful in chain mode for cuts with minimal waste)", 2},
 	{ "newline", 'n', "<text>", 0, "Add text in a new line (up to 4 lines)", 2},
+	{ "align", 'a', "<l|c|r>", 0, "Align text (when printing multiple lines)", 2},
 
 	{ 0, 0, 0, 0, "other commands:", 3},
 	{ "info", 20, 0, 0, "Show info about detected tape", 3},
@@ -109,6 +112,7 @@ static struct argp_option options[] = {
 static struct argp argp = { options, parse_opt, args_doc, doc, 0, 0, 0 };
 
 struct arguments arguments = {
+	.align = ALIGN_LEFT,
 	.chain = false,
 	.copies = 1,
 	.debug = false,
@@ -338,7 +342,7 @@ gdImage *render_text(char *font, char *line[], int lines, int print_width)
 	gdImage *im = NULL;
 
 	if (arguments.debug) {
-		printf(_("render_text(): %i lines, font = '%s'\n"), lines, font);
+		printf(_("render_text(): %i lines, font = '%s', align = '%c'\n"), lines, font, arguments.align);
 	}
 	if (gdFTUseFontConfig(1) != GD_TRUE) {
 		printf(_("warning: font config not available\n"));
@@ -399,7 +403,13 @@ gdImage *render_text(char *font, char *line[], int lines, int print_width)
 			printf("debug: line %i pos=%i ofs=%i\n", i+1, pos, ofs);
 		}
 		int off_x = offset_x(line[i], arguments.font_file, fsz);
-		if ((p = gdImageStringFT(im, &brect[0], -black, font, fsz, 0.0, off_x, pos, line[i])) != NULL) {
+		int align_ofs = 0;
+		if (arguments.align == ALIGN_CENTER) {
+			align_ofs = (x - needed_width(line[i], arguments.font_file, fsz)) / 2;
+		} else if (arguments.align == ALIGN_RIGHT) {
+			align_ofs = x - needed_width(line[i], arguments.font_file, fsz);
+		}
+		if ((p = gdImageStringFT(im, &brect[0], -black, font, fsz, 0.0, off_x + align_ofs, pos, line[i])) != NULL) {
 			printf(_("error in gdImageStringFT: %s\n"), p);
 		}
 	}
@@ -546,6 +556,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 			add_job(JOB_IMAGE, 1, arg);
 			break;
 		case 't': // text
+			//printf("adding text job with alignment %i\n", arguments->align);
 			add_job(JOB_TEXT, 1, arg);
 			break;
 		case 'c': // cutmark
@@ -559,6 +570,18 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 			break;
 		case 11: // precut
 			arguments->precut = true;
+			break;
+		case 'a': // align
+			if ((strcmp(arg, "c") == 0) || (strcmp(arg, "center") == 0)) {
+				arguments->align = ALIGN_CENTER;
+			} else if ((strcmp(arg, "r") == 0) || (strcmp(arg, "right") == 0)) {
+				arguments->align = ALIGN_RIGHT;
+			} else if ((strcmp(arg, "l") == 0) || (strcmp(arg, "left") == 0)) {
+				arguments->align = ALIGN_LEFT;
+			} else {
+				printf("unknown alignment, defaulting to left\n");
+				arguments->align = ALIGN_LEFT;
+			}
 			break;
 		case 'n': // newline
 			if (!last_added_job || last_added_job->type != JOB_TEXT) {

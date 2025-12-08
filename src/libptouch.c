@@ -457,12 +457,21 @@ int ptouch_sendraster(ptouch_dev ptdev, uint8_t *data, size_t len)
 
 void ptouch_list_supported()
 {
+	const int columns = 5;
 	printf("Supported printers (some might have quirks)\n");
+	int col=0;
 	for (int i=0; ptdevs[i].vid > 0; ++i) {
 		if ((ptdevs[i].flags & FLAG_PLITE) != FLAG_PLITE) {
-			printf("\t%s\n", ptdevs[i].name);
+			printf("%s", ptdevs[i].name);
+			if (strlen(ptdevs[i].name) < 8) {
+				printf("\t");
+			}
+			printf("%c", (col < (columns - 1))?'\t':'\n');
+			++col;
+			col = (col % columns);
 		}
 	}
+	printf("\n");
 	return;
 }
 

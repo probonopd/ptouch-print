@@ -80,7 +80,6 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state);
 const char *argp_program_version = P_NAME " " VERSION;
 const char *argp_program_bug_address = "Dominic Radermacher <dominic@familie-radermacher.ch>";
 static char doc[] = "ptouch-print is a command line tool to print labels on Brother P-Touch printers on Linux.";
-static char args_doc[] = "";
 
 static struct argp_option options[] = {
 	// name, key, arg, flags, doc, group
@@ -109,7 +108,7 @@ static struct argp_option options[] = {
 	{ 0 }
 };
 
-static struct argp argp = { options, parse_opt, args_doc, doc, 0, 0, 0 };
+static struct argp argp = { options, parse_opt, NULL, doc, NULL, NULL, NULL };
 
 struct arguments arguments = {
 	.align = ALIGN_LEFT,

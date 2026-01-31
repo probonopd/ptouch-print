@@ -1,2 +1,5 @@
 #!/bin/sh
-mkdir -p build && cd build && cmake ../ && make
+# Build using GNUstep make
+set -e
+# Build GUI and CLI tool
+gmake

@@ -349,6 +349,23 @@ void ptouch_rawstatus(uint8_t raw[32])
 	return;
 }
 
+/* Decode derived runtime status fields from raw 32-byte status. */
+void ptouch_update_derived_status(ptouch_dev ptdev)
+{
+	if (!ptdev || !ptdev->status) return;
+	uint8_t *s = (uint8_t *)ptdev->status;
+	/* Observed mapping from capture:
+	   - byte 8, bit0 (0x01) is set when the door/cover is open
+	   - byte 9, bit4 (0x10) is set briefly when the cover moves
+	   - byte 10 contains media width in mm (0 when unknown / no tape)
+	*/
+	int new_door_open = (s[8] & 0x01) ? 1 : 0;
+	int new_door_moving = (s[9] & 0x10) ? 1 : 0;
+	ptdev->door_open = new_door_open;
+	ptdev->door_moving = new_door_moving;
+	return;
+}
+
 int ptouch_getstatus(ptouch_dev ptdev, int timeout)
 {
 	char cmd[]="\x1biS";	/* 1B 69 53 = ESC i S = Status info request */
@@ -379,6 +396,8 @@ int ptouch_getstatus(ptouch_dev ptdev, int timeout)
 	if (tx == 32) {
 		if (buf[0]==0x80 && buf[1]==0x20) {
 			memcpy(ptdev->status, buf, 32);
+			/* ensure derived runtime fields are updated immediately */
+			ptouch_update_derived_status(ptdev);
 			ptdev->tape_width_px=0;
 			for (i=0; tape_info[i].mm > 0; ++i) {
 				if (tape_info[i].mm == buf[10]) {
@@ -386,7 +405,10 @@ int ptouch_getstatus(ptouch_dev ptdev, int timeout)
 				}
 			}
 			if (ptdev->tape_width_px == 0) {
-				fprintf(stderr, _("unknown tape width of %imm, please report this.\n"), buf[10]);
+				/* If media width is 0, this typically means door open / no tape — no warning needed. */
+				if (buf[10] != 0) {
+					fprintf(stderr, _("unknown tape width of %imm, please report this.\n"), buf[10]);
+				}
 			}
 			return 0;
 		}

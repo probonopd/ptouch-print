@@ -23,7 +23,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include <gd.h>
 #include <libintl.h>
 #include <locale.h>
 
@@ -49,6 +48,7 @@ struct arguments {
 	char *save_png;
 	int verbose;
 	int timeout;
+	int line_spacing_percent; /* percent to scale ascender for inter-line spacing */
 };
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state);
@@ -60,6 +60,7 @@ static char doc[] = "ptouch-print is a command line tool to print labels on Brot
 static struct argp_option options[] = {
 	{ 0, 0, 0, 0, "options:", 1},
 	{ "debug", 1, 0, 0, "Enable debug output", 1},
+	{ "verbose", 'v', 0, 0, "Enable verbose output (same as --debug)", 1},
 	{ "invert", 30, 0, 0, "Invert output (print white on black background)", 1},
 	{ "font", 2, "<file>", 0, "Use font <file> or <name>", 1},
 	{ "fontsize", 3, "<size>", 0, "Manually set font size", 1},
@@ -79,6 +80,7 @@ static struct argp_option options[] = {
 	{ 0, 0, 0, 0, "other commands:", 3},
 	{ "info", 20, 0, 0, "Show info about detected tape", 3},
 	{ "list-supported", 21, 0, 0, "Show printers supported by this version", 3},
+	{ "line-spacing", 31, "<percent>", 0, "Set line spacing percent (100 = asc, <100 reduces vertical spacing)", 3},
 	{ 0 }
 };
 
@@ -96,7 +98,8 @@ struct arguments arguments = {
 	.forced_tape_width = 0,
 	.save_png = NULL,
 	.verbose = 0,
-	.timeout = 1
+	.timeout = 1,
+	.line_spacing_percent = 85
 };
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state)
@@ -112,6 +115,8 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 		case 5: arguments->forced_tape_width = strtol(arg, NULL, 10); break;
 		case 6: arguments->copies = strtol(arg, NULL, 10); break;
 		case 7: arguments->timeout = strtol(arg, NULL, 10); break;
+	case 'v': arguments->verbose++; break;
+	case 31: arguments->line_spacing_percent = strtol(arg, NULL, 10); break;
 		case 'i': add_job(JOB_IMAGE, 1, arg); break;
 		case 't': add_text(state, arg, true); break;
 		case 'c': add_job(JOB_CUTMARK, 0, NULL); break;
@@ -134,22 +139,27 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 			break;
 		default: return ARGP_ERR_UNKNOWN;
 	}
-	render_args.debug = arguments->debug;
+	render_args.debug = arguments->debug || (arguments->verbose > 0);
 	render_args.align = arguments->align;
 	render_args.font_file = arguments->font_file;
 	render_args.font_size = arguments->font_size;
+	/* propagate line spacing percent CLI option */
+	render_args.line_spacing_percent = arguments->line_spacing_percent;
 	return 0;
 }
 
 int main(int argc, char *argv[])
 {
 	int print_width = 0;
-	gdImage *im = NULL, *out = NULL;
+	image_t *im = NULL, *out = NULL;
 	ptouch_dev ptdev = NULL;
 
 	setlocale(LC_ALL, "");
 	bindtextdomain(P_NAME, "/usr/share/locale/");
 	textdomain(P_NAME);
+
+	/* Ensure AppKit/GNUstep backends are initialized for rendering */
+	ensure_ns_application();
 
 	argp_parse(&argp, argc, argv, 0, 0, &arguments);
 
@@ -176,22 +186,22 @@ int main(int argc, char *argv[])
 			case JOB_IMAGE:
 				if ((im = image_load(job->lines[0])) == NULL) return 1;
 				out = img_append(out, im);
-				gdImageDestroy(im); im = NULL;
+				image_destroy(im); im = NULL;
 				break;
 			case JOB_TEXT:
 				if ((im = render_text(arguments.font_file, job->lines, job->n, print_width)) == NULL) return 1;
 				out = img_append(out, im);
-				gdImageDestroy(im); im = NULL;
+				image_destroy(im); im = NULL;
 				break;
 			case JOB_CUTMARK:
 				im = img_cutmark(print_width);
 				out = img_append(out, im);
-				gdImageDestroy(im); im = NULL;
+				image_destroy(im); im = NULL;
 				break;
 			case JOB_PAD:
 				im = img_padding(print_width, job->n);
 				out = img_append(out, im);
-				gdImageDestroy(im); im = NULL;
+				image_destroy(im); im = NULL;
 				break;
 			default: break;
 		}
@@ -206,7 +216,7 @@ int main(int argc, char *argv[])
 				ptouch_finalize(ptdev, (arguments.chain || (i < arguments.copies-1)));
 			}
 		}
-		gdImageDestroy(out);
+		image_destroy(out);
 	}
 	if (!arguments.forced_tape_width) ptouch_close(ptdev);
 	libusb_exit(NULL);

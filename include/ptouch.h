@@ -96,8 +96,14 @@ struct _ptouch_dev {
 	pt_dev_info devinfo;
 	pt_dev_stat status;
 	uint16_t tape_width_px;
+	/* Derived runtime state (updated after each ptouch_getstatus()) */
+	int door_open;     /* non-zero if the printer door/cover is open */
+	int door_moving;   /* non-zero if the cover is in transition (opening/closing) */
 };
 typedef struct _ptouch_dev *ptouch_dev;
+
+/* Update derived runtime fields (door_open, door_moving, etc) from raw status */
+void ptouch_update_derived_status(ptouch_dev ptdev);
 
 int ptouch_open(ptouch_dev *ptdev);
 int ptouch_close(ptouch_dev ptdev);

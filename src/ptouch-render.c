@@ -11,7 +11,9 @@ struct render_arguments render_args = {
 	.align = ALIGN_LEFT,
 	.font_file = "Sans",
 	.font_size = 0,
-	.debug = false
+	.debug = false,
+	.gray_threshold = (128*3),
+	.line_spacing_percent = 85
 };
 
 job_t *jobs = NULL;

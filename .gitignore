@@ -40,3 +40,5 @@ gdb.txt
 *.pot
 *.po
 *.mo
+obj/
+*.png

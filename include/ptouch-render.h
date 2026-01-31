@@ -22,14 +22,16 @@ struct render_arguments {
 	char *font_file;
 	int font_size;
 	bool debug;
+	int gray_threshold; /* threshold (sum of R+G+B) to consider pixel 'black' */
+	int line_spacing_percent; /* percent multiplier (100 = asc), <100 reduces space */
 };
 
 extern struct render_arguments render_args;
 
-/* Opaque image type used instead of gdImage */
+/* Opaque image type representing a monochrome raster image */
 typedef struct image_t {
-	int width;  /* width in px (x dimension, formerly gdImageSX) */
-	int height; /* height in px (y dimension, formerly gdImageSY) */
+	int width;  /* width in px (x dimension) */
+	int height; /* height in px (y dimension) */
 	unsigned char *data; /* row-major, 0 = white, 1 = black */
 } image_t;
 
@@ -39,6 +41,10 @@ int write_png(image_t *im, const char *file);
 void *image_png_ptr(image_t *im, int *size); /* returns malloc'd PNG data, free with image_free */
 void image_free(void *ptr);
 void image_destroy(image_t *im);
+
+/* Ensure the shared NSApplication exists and is finished launching before
+   calling AppKit/GNUstep APIs from CLI tools. */
+void ensure_ns_application(void);
 
 /* Raster / measurement / rendering */
 void rasterline_setpixel(uint8_t* rasterline, size_t size, int pixel);

@@ -7,16 +7,21 @@ $(error GNUstep development libraries not found. Install packages providing pkg-
 endif
 
 APP_NAME = PtouchGUI
-PtouchGUI_OBJC_FILES = src-gui/PtouchGUI.m
+PtouchGUI_OBJC_FILES = src-gui/PtouchGUI.m src/ptouch-render-gnustep.m
 PtouchGUI_C_FILES = src/libptouch.c src/ptouch-render.c
 
 # Include directories
 ADDITIONAL_INCLUDE_DIRS += -Iinclude
 
 # Library dependencies (GNUstep is required)
-ADDITIONAL_GUI_LIBS += $(shell pkg-config --libs libusb-1.0 gnustep-base gnustep-gui)
-ADDITIONAL_CPPFLAGS += $(shell pkg-config --cflags libusb-1.0 gnustep-base gnustep-gui) -DUSING_CMAKE=0
+ADDITIONAL_GUI_LIBS += $(shell pkg-config --libs libusb-1.0 gnustep-base) -lgnustep-gui
+ADDITIONAL_CPPFLAGS += $(shell pkg-config --cflags libusb-1.0 gnustep-base) -DUSING_CMAKE=0
 
+
+
+# Ensure tool links against gnustep-gui which may not provide a pkg-config entry on some systems
+ptouch_print_LDFLAGS += -lgnustep-gui
+ptouch-print_LDFLAGS += -lgnustep-gui
 # Include directories
 ADDITIONAL_INCLUDE_DIRS += -Iinclude
 
@@ -28,10 +33,40 @@ include $(GNUSTEP_MAKEFILES)/application.make
 
 # Command-line tool: ptouch-print
 TOOL_NAME = ptouch-print
+# gnustep-make expects instance variables named for the tool; some systems
+# use the hyphenated name (ptouch-print) whereas others use underscores.
+# Define both forms to be safe.
 ptouch_print_C_FILES = src/ptouch-print.c src/libptouch.c src/ptouch-render.c
 ptouch_print_OBJC_FILES = src/ptouch-render-gnustep.m
-ptouch_print_LDFLAGS += $(shell pkg-config --libs libusb-1.0 gnustep-base gnustep-gui 2>/dev/null)
-ptouch_print_CFLAGS += $(shell pkg-config --cflags libusb-1.0 gnustep-base gnustep-gui 2>/dev/null)
+ptouch_print_LDFLAGS += $(shell pkg-config --libs libusb-1.0 gnustep-base gnustep-gui)
+ptouch_print_CFLAGS += $(shell pkg-config --cflags libusb-1.0 gnustep-base gnustep-gui)
+
+ptouch-print_C_FILES = $(ptouch_print_C_FILES)
+ptouch-print_OBJC_FILES = $(ptouch_print_OBJC_FILES)
+ptouch-print_LDFLAGS = $(ptouch_print_LDFLAGS)
+ptouch-print_CFLAGS = $(ptouch_print_CFLAGS)
+
+include $(GNUSTEP_MAKEFILES)/tool.make
+
+# Small test utility to exercise rendering
+TOOL_NAME = render-test
+render_test_C_FILES = src/libptouch.c src/ptouch-render.c
+render_test_OBJC_FILES = src/render_test.m src/ptouch-render-gnustep.m
+render-test_C_FILES = $(render_test_C_FILES)
+render-test_OBJC_FILES = $(render_test_OBJC_FILES)
+render_test_LDFLAGS += -lgnustep-gui
+render_test_LDFLAGS += -lusb-1.0
+render-test_LDFLAGS = $(render_test_LDFLAGS)
+render_test_CFLAGS = $(render_test_CFLAGS)
+include $(GNUSTEP_MAKEFILES)/tool.make
+
+# Status monitoring utility to observe printer status bytes and report diffs
+TOOL_NAME = status-monitor
+status_monitor_C_FILES = src/libptouch.c src/status-monitor.c
+status-monitor_C_FILES = $(status_monitor_C_FILES)
+status_monitor_LDFLAGS += -lusb-1.0
+status-monitor_LDFLAGS = $(status_monitor_LDFLAGS)
+status-monitor_CFLAGS = $(status_monitor_CFLAGS)
 include $(GNUSTEP_MAKEFILES)/tool.make
 
 # Local install hook: install udev rules on Linux and devd rule on FreeBSD

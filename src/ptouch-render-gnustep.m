@@ -138,22 +138,16 @@ static NSFont *nsfont_for(const char *fontname, int fsz)
 int get_baselineoffset(char *text, char *font, int fsz)
 {
     @autoreleasepool {
-        NSString *s = text ? [NSString stringWithUTF8String:text] : @"";
-        NSString *o = @"o";
         NSFont *f = nsfont_for(font, fsz);
-        NSDictionary *attr = @{ NSFontAttributeName: f };
-        NSSize sz_o = [o sizeWithAttributes:attr];
-        NSSize sz_t = [s sizeWithAttributes:attr];
-        /* We emulate baseline offset by comparing heights */
-        int o_off = (int)ceil(sz_o.height);
-        int t_off = (int)ceil(sz_t.height);
+        /* Use font ascender as baseline reference (rounded up) */
+        CGFloat asc = [f ascender];
+        int baseline = (int)ceil(asc);
         if (render_args.debug) {
-            printf("debug: o baseline offset - %d\n", o_off);
-            printf("debug: text baseline offset - %d\n", t_off);
+            printf("debug: baseline metrics asc=%.2f baseline=%d\n", asc, baseline);
         }
-        return t_off - o_off;
+        return baseline;
     }
-}
+} 
 
 int find_fontsize(int want_px, char *font, char *text)
 {
@@ -161,12 +155,19 @@ int find_fontsize(int want_px, char *font, char *text)
         if (!text) return -1;
         for (int i = 4; ; ++i) {
             NSFont *f = nsfont_for(font, i);
-            CGFloat lh = [f defaultLineHeightForFont];
-            if (lh <= 0) return -1;
-            if ((int)ceil(lh) <= want_px) {
+            /* Prefer font metrics (ascender + |descender| + leading) for consistent line height */
+            CGFloat asc = [f ascender];
+            CGFloat desc = [f descender];
+            CGFloat leading = [f leading];
+            int h = (int)ceil(asc - desc + leading);
+            if (render_args.debug) printf("[debug] find_fontsize: want_px=%d, try_size=%d, measured_height=%d (asc=%.2f desc=%.2f lead=%.2f)\n", want_px, i, h, asc, desc, leading);
+            if (h <= 0) return -1;
+            if (h <= want_px) {
                 /* keep trying larger sizes until it grows beyond want_px */
             } else {
-                return i-1 > 0 ? i-1 : -1;
+                int res = i-1 > 0 ? i-1 : -1;
+                if (render_args.debug) printf("[debug] find_fontsize: result=%d\n", res);
+                return res;
             }
         }
         return -1;
@@ -181,6 +182,7 @@ int needed_width(char *text, char *font, int fsz)
         NSFont *f = nsfont_for(font, fsz);
         NSDictionary *attr = @{ NSFontAttributeName: f };
         NSSize sz = [s sizeWithAttributes:attr];
+        if (render_args.debug) printf("[debug] needed_width: text='%s' font='%s' size=%d -> width=%.2f\n", text, font ? font : "(null)", fsz, sz.width);
         return (int)ceil(sz.width);
     }
 }
@@ -202,6 +204,7 @@ image_t *render_text(char *font, char *line[], int lines, int print_width)
         }
 
         int fsz = 0;
+        if (render_args.debug) printf("[debug] render_text: lines=%d font=%s font_size_arg=%d\n", lines, font ? font : "(null)", render_args.font_size);
         if (render_args.font_size > 0) {
             fsz = render_args.font_size;
         } else {
@@ -238,54 +241,42 @@ image_t *render_text(char *font, char *line[], int lines, int print_width)
             if (render_args.debug) printf("render_text(): failed to create image\n");
             return NULL;
         }
+        if (render_args.debug) printf("[debug] render_text: created image %dx%d\n", im->width, im->height);
 
-        /* Prepare bitmap context to draw text */
-        NSBitmapImageRep *rep = [[NSBitmapImageRep alloc]
-                                  initWithBitmapDataPlanes:NULL
-                                  pixelsWide:im->width
-                                  pixelsHigh:im->height
-                                  bitsPerSample:8
-                                  samplesPerPixel:1
-                                  hasAlpha:NO
-                                  isPlanar:NO
-                                  colorSpaceName:NSCalibratedWhiteColorSpace
-                                  bytesPerRow:im->width
-                                  bitsPerPixel:8];
-        if (!rep) { image_destroy(im); return NULL; }
-
-        /* Clear to white */
-        unsigned char *bitmap = (unsigned char *)[rep bitmapData];
-        memset(bitmap, 255, im->width * im->height);
-
-        NSGraphicsContext *gctx = [NSGraphicsContext graphicsContextWithBitmapImageRep:rep];
-        [NSGraphicsContext saveGraphicsState];
-        [NSGraphicsContext setCurrentContext:gctx];
+        /* Draw into an NSImage via lockFocus for GNUstep/AppKit drawing */
+        NSImage *img = [[NSImage alloc] initWithSize:NSMakeSize(im->width, im->height)];
+        [img lockFocus];
+        /* clear to white */
+        [[NSColor whiteColor] setFill];
+        NSRectFill(NSMakeRect(0, 0, im->width, im->height));
 
         NSFont *nsf = nsfont_for(font, fsz);
         NSDictionary *attr = @{ NSFontAttributeName: nsf,
                                 NSForegroundColorAttributeName: [NSColor blackColor] };
 
         int max_height = 0;
+        CGFloat asc = [nsf ascender];
+        CGFloat desc = [nsf descender];
+        /* Use ascender scaled by user-configurable percent to adjust spacing */
+        double spacing_factor = (render_args.line_spacing_percent > 0) ? (render_args.line_spacing_percent / 100.0) : 1.0;
+        int computed_lineheight = (int)ceil(asc * spacing_factor);
         for (int i = 0; i < lines; ++i) {
-            NSString *s = [NSString stringWithUTF8String:line[i]];
-            NSSize sz = [s sizeWithAttributes:attr];
-            int lineheight = (int)ceil(sz.height);
-            if (lineheight > max_height) max_height = lineheight;
+            if (computed_lineheight > max_height) max_height = computed_lineheight;
+            if (render_args.debug) printf("[debug] render_text: line %d height=%d (asc=%.2f desc=%.2f)\n", i, computed_lineheight, asc, desc);
         }
+        int total_needed = max_height * lines;
+        if (render_args.debug) printf("[debug] render_text: max_height=%d total_needed=%d print_width=%d\n", max_height, total_needed, print_width);
 
-        if ((max_height * lines) > print_width) {
-            [NSGraphicsContext restoreGraphicsState];
-            [rep release];
+        if (total_needed > print_width) {
+            printf("[error] render_text: text doesn't fit vertically\n");
+            [img unlockFocus];
             image_destroy(im);
             return NULL;
         }
 
-        int unused_px = print_width - (max_height * lines);
+        int top_margin = (print_width - total_needed) / 2; /* center the block */
         for (int i = 0; i < lines; ++i) {
             NSString *s = [NSString stringWithUTF8String:line[i]];
-            int ofs = get_baselineoffset(line[i], font, fsz);
-            int pos = ((i)*(print_width/(lines))) + (max_height) - ofs;
-            pos += (unused_px/lines) / 2;
             int off_x = offset_x(line[i], font, fsz);
             int align_ofs = 0;
             if (render_args.align == ALIGN_CENTER) {
@@ -293,27 +284,63 @@ image_t *render_text(char *font, char *line[], int lines, int print_width)
             } else if (render_args.align == ALIGN_RIGHT) {
                 align_ofs = x - needed_width(line[i], font, fsz);
             }
-
-            /* Drawing point: AppKit coordinate origin is bottom-left, so compute y accordingly */
+            /* Compute baseline from top of image: top_margin + i*lineheight + asc (baseline relative to top) */
+            int baseline_from_top = top_margin + (i * max_height) + (int)ceil(asc);
             int draw_x = off_x + align_ofs;
-            int draw_y = im->height - pos; /* approximate mapping */
+            int draw_y = im->height - baseline_from_top; /* convert top-based coordinate to AppKit bottom-based */
+            if (render_args.debug) printf("[debug] render_text: line=%d top_margin=%d baseline_from_top=%d drawAt=(%d,%d) asc=%.2f\n", i, top_margin, baseline_from_top, draw_x, draw_y, asc);
             [s drawAtPoint:NSMakePoint(draw_x, draw_y) withAttributes:attr];
         }
 
-        [NSGraphicsContext restoreGraphicsState];
+        [img unlockFocus];
 
-        /* Copy bitmap into image_t (threshold) */
+        NSBitmapImageRep *rep = [[NSBitmapImageRep alloc] initWithData:[img TIFFRepresentation]];
+        [img release];
+        if (!rep) { printf("[error] render_text: failed to get bitmap rep from image\n"); image_destroy(im); return NULL; }
+        if (render_args.debug) printf("[debug] render_text: NSBitmapImageRep created, bytesPerRow=%d\n", (int)[rep bytesPerRow]);
+
+        /* Debug: check whether any pixels in the rep changed from white */
         int bpr = [rep bytesPerRow];
         unsigned char *repdata = (unsigned char *)[rep bitmapData];
+        int rep_dark = 0;
         for (int y = 0; y < im->height; ++y) {
+            unsigned char *row = repdata + y * bpr;
             for (int x2 = 0; x2 < im->width; ++x2) {
-                unsigned char v = repdata[y * bpr + x2];
-                im->data[y * im->width + x2] = (v < 128) ? 1 : 0;
+                int idx = x2 * 4;
+                unsigned char r = row[idx];
+                unsigned char g = row[idx+1];
+                unsigned char b = row[idx+2];
+                int lum = r + g + b;
+                if (lum < (255*3)) rep_dark++;
             }
         }
+        if (render_args.debug) printf("[debug] render_text: rep_dark_pixels=%d\n", rep_dark);
 
+        int img_dark = 0;
+        if (rep_dark > 0) {
+            /* Copy bitmap into image_t (threshold using RGB luminance) */
+            for (int y = 0; y < im->height; ++y) {
+                unsigned char *row = repdata + y * bpr;
+                for (int x2 = 0; x2 < im->width; ++x2) {
+                    int idx = x2 * 4;
+                    unsigned char r = row[idx];
+                    unsigned char g = row[idx+1];
+                    unsigned char b = row[idx+2];
+                    int lum = r + g + b; /* 0..765 */
+                    im->data[y * im->width + x2] = (lum < render_args.gray_threshold) ? 1 : 0; /* black if darker than threshold */
+                    if (im->data[y * im->width + x2]) img_dark++;
+                }
+            }
+            if (render_args.debug) printf("[debug] render_text: img_dark_pixels=%d\n", img_dark);
+            [rep release];
+            return im;
+        }
+
+        /* No fallback renderer: if rep is blank, we cannot render the text here */
+        if (render_args.debug) printf("[error] render_text: rep blank and no fallback available - cannot render\n");
         [rep release];
-        return im;
+        image_destroy(im);
+        return NULL;
     }
 }
 
@@ -377,5 +404,16 @@ void invert_image(image_t *im)
         for (int x = 0; x < im->width; ++x) {
             im->data[y * im->width + x] = im->data[y * im->width + x] ? 0 : 1;
         }
+    }
+}
+
+/* Ensure an NSApplication exists and is fully initialized. This is required
+   for font and drawing APIs on some GNUstep backends. */
+void ensure_ns_application(void)
+{
+    @autoreleasepool {
+        (void)[NSApplication sharedApplication];
+        /* finishLaunching is safe to call multiple times */
+        [NSApp finishLaunching];
     }
 }

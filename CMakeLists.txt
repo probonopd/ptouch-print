@@ -90,3 +90,9 @@ if(EXISTS /etc/udev/rules.d)
 	install(FILES udev/20-usb-ptouch-permissions.rules DESTINATION /etc/udev/rules.d)
 	install(CODE "execute_process(COMMAND udevadm control --reload-rules)")
 endif()
+
+# On FreeBSD, install a devd rule file and restart devd so device permissions take effect
+if(CMAKE_SYSTEM_NAME STREQUAL "FreeBSD")
+	install(FILES udev/20-usb-ptouch-devd.conf DESTINATION /usr/local/etc/devd)
+	install(CODE "execute_process(COMMAND service devd restart)")
+endif()

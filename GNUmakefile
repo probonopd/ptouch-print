@@ -14,6 +14,7 @@ ADDITIONAL_CPPFLAGS += $(shell pkg-config --cflags gdlib libusb-1.0) -DUSING_CMA
 include $(GNUSTEP_MAKEFILES)/application.make
 
 # Local install hook: install udev rules on Linux and devd rule on FreeBSD
+install:: install-local
 install-local:
 	@if [ -d /etc/udev/rules.d ]; then \
 		install -m 644 udev/20-usb-ptouch-permissions.rules /etc/udev/rules.d/; \

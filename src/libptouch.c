@@ -31,6 +31,8 @@
 #include "ptouch.h"
 
 #define _(s) gettext(s)
+#define TOP_PADDING 5 /* extra pixels added at the top (px) */
+#define BOTTOM_PADDING 7 /* extra pixels added at the bottom (px) */
 
 /* Print area width in 180 DPI pixels */
 struct _pt_tape_info tape_info[]= {
@@ -414,7 +416,14 @@ size_t ptouch_get_tape_width(ptouch_dev ptdev)
 		fprintf(stderr, _("debug: called ptouch_get_tape_width() with NULL ptdev\n"));
 		return 0;
 	}
-	return ptdev->tape_width_px;
+	/* Add extra printable pixels on top and bottom (per user request)
+	   Top and bottom can differ; user requested +2 at bottom */
+	size_t padded = ptdev->tape_width_px + TOP_PADDING + BOTTOM_PADDING;
+	/* Ensure we don't exceed device maximum */
+	if (padded > ptdev->devinfo->max_px) {
+		padded = ptdev->devinfo->max_px;
+	}
+	return padded;
 }
 
 size_t ptouch_get_max_width(ptouch_dev ptdev)

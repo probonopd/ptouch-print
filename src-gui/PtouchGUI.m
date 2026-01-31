@@ -44,13 +44,13 @@
                                           styleMask: styleMask
                                             backing: NSBackingStoreBuffered
                                               defer: NO];
-    [window setTitle: @"P-Touch Print GUI"];
+    [window setTitle: @"P-Touch"];
 
     NSView *contentView = [window contentView];
 
     // Label
     NSTextField *label1 = [[NSTextField alloc] initWithFrame: NSMakeRect(20, 610, 360, 20)];
-    [label1 setStringValue: @"Text (use \\n for newlines):"];
+    [label1 setStringValue: @"Text:"];
     [label1 setBezeled: NO];
     [label1 setDrawsBackground: NO];
     [label1 setEditable: NO];
@@ -161,13 +161,7 @@
     [tapeWidthField setDelegate: self];
     [contentView addSubview: tapeWidthField];
 
-    // Buttons
-    NSButton *infoBtn = [[NSButton alloc] initWithFrame: NSMakeRect(20, 150, 100, 30)];
-    [infoBtn setTitle: @"Show Info"];
-    [infoBtn setTarget: self];
-    [infoBtn setAction: @selector(showInfo:)];
-    [contentView addSubview: infoBtn];
-
+    // Buttons (Show Info removed; info shown on startup)
     NSButton *pngBtn = [[NSButton alloc] initWithFrame: NSMakeRect(130, 150, 120, 30)];
     [pngBtn setTitle: @"Save to PNG"];
     [pngBtn setTarget: self];
@@ -188,6 +182,8 @@
     [contentView addSubview: statusLabel];
 
     [window makeKeyAndOrderFront: self];
+
+    [self showInfo: nil];
 
     [self schedulePreviewUpdate];
 }
@@ -232,12 +228,26 @@
     
     ptouch_dev ptdev = NULL;
     if (ptouch_open(&ptdev) < 0) {
-        [statusLabel setStringValue: @"Error: Could not open printer"];
+        NSString *msg = @"Could not open printer";
+        [statusLabel setStringValue: [NSString stringWithFormat: @"Error: %@", msg]];
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setMessageText: @"Printer Error"];
+        [alert setInformativeText: msg];
+        [alert addButtonWithTitle: @"OK"];
+        [alert runModal];
+        [alert release];
         return;
     }
     ptouch_init(ptdev);
     if (ptouch_getstatus(ptdev, 1) != 0) {
-        [statusLabel setStringValue: @"Error: Could not get status"];
+        NSString *msg = @"Could not get status from printer";
+        [statusLabel setStringValue: [NSString stringWithFormat: @"Error: %@", msg]];
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setMessageText: @"Printer Error"];
+        [alert setInformativeText: msg];
+        [alert addButtonWithTitle: @"OK"];
+        [alert runModal];
+        [alert release];
         ptouch_close(ptdev);
         return;
     }
@@ -315,12 +325,26 @@
 {
     ptouch_dev ptdev = NULL;
     if (ptouch_open(&ptdev) < 0) {
-        [statusLabel setStringValue: @"Error: Could not open printer"];
+        NSString *msg = @"Could not open printer";
+        [statusLabel setStringValue: [NSString stringWithFormat: @"Error: %@", msg]];
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setMessageText: @"Printer Error"];
+        [alert setInformativeText: msg];
+        [alert addButtonWithTitle: @"OK"];
+        [alert runModal];
+        [alert release];
         return;
     }
     ptouch_init(ptdev);
     if (ptouch_getstatus(ptdev, 1) != 0) {
-        [statusLabel setStringValue: @"Error: Could not get status"];
+        NSString *msg = @"Could not get status from printer";
+        [statusLabel setStringValue: [NSString stringWithFormat: @"Error: %@", msg]];
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setMessageText: @"Printer Error"];
+        [alert setInformativeText: msg];
+        [alert addButtonWithTitle: @"OK"];
+        [alert runModal];
+        [alert release];
         ptouch_close(ptdev);
         return;
     }

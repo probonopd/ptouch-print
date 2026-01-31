@@ -34,7 +34,7 @@
 
 #define _(s) gettext(s)
 
-#define MAX_LINES 4	/* maybe this should depend on tape size */
+#define MAX_LINES 8	/* maybe this should depend on tape size */
 
 #define P_NAME "ptouch-print"
 
@@ -102,7 +102,7 @@ static struct argp_option options[] = {
 	{ "pad", 'p', "<n>", 0, "Add n pixels padding (blank tape)", 2},
 	{ "chain", 10, 0, 0, "Skip final feed of label and any automatic cut", 2},
 	{ "precut", 11, 0, 0, "Add a cut before the label (useful in chain mode for cuts with minimal waste)", 2},
-	{ "newline", 'n', "<text>", 0, "Add text in a new line (up to 4 lines)", 2},
+	{ "newline", 'n', "<text>", 0, "Add text in a new line (up to 8 lines)", 2},
 	{ "align", 'a', "<l|c|r>", 0, "Align text (when printing multiple lines)", 2},
 
 	{ 0, 0, 0, 0, "other commands:", 3},

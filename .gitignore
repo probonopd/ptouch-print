@@ -29,3 +29,8 @@ ptouch.pot
 
 # Misc
 .DS_Store
+*.d
+*.o
+*.log
+Info-gnustep.plist
+PtouchGUI.app

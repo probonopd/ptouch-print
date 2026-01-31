@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ptouch-print 1.7\n"
 "Report-Msgid-Bugs-To: dominic@familie-radermacher.ch\n"
-"POT-Creation-Date: 2026-01-31 12:23+0100\n"
+"POT-Creation-Date: 2026-01-31 12:57+0100\n"
 "PO-Revision-Date: 2024-05-23 22:27-0400\n"
 "Last-Translator: dominic@familie-radermacher.ch\n"
 "Language-Team: German <translation-team-de@lists.sourceforge.net>\n"
@@ -155,152 +155,140 @@ msgstr ""
 msgid "debug: called ptouch_sendraster() with NULL ptdev\n"
 msgstr ""
 
-#: src/ptouch-print.c:155
-#, c-format
-msgid "nothing to print\n"
-msgstr ""
-
-#: src/ptouch-print.c:163
-#, c-format
-msgid "image is too large (%ipx x %ipx)\n"
-msgstr "Bild ist zu gross (%ipx x %ipx)\n"
-
-#: src/ptouch-print.c:164
-#, c-format
-msgid "maximum printing width for this tape is %ipx\n"
-msgstr "Maximal druckbare Breite für dieses Schriftband sind %ipx\n"
-
-#: src/ptouch-print.c:167
-#, fuzzy, c-format
-msgid "image size (%ipx x %ipx)\n"
-msgstr "Bild ist zu gross (%ipx x %ipx)\n"
-
-#: src/ptouch-print.c:177
-#, c-format
-msgid "ptouch_rasterstart() failed\n"
-msgstr "ptouch_rasterstart() fehlgeschlagen\n"
-
-#: src/ptouch-print.c:183
-#, c-format
-msgid "send print information command\n"
-msgstr ""
-
-#: src/ptouch-print.c:189
-#, c-format
-msgid "send PT-D460BT magic commands\n"
-msgstr ""
-
-#: src/ptouch-print.c:196
-#, c-format
-msgid "send precut command\n"
-msgstr ""
-
-#: src/ptouch-print.c:205
-#, c-format
-msgid "send PT-D460BT chain commands\n"
-msgstr ""
-
-#: src/ptouch-print.c:217
-#, fuzzy, c-format
-msgid "ptouch_sendraster() failed\n"
-msgstr "ptouch_send() fehlgeschlagen\n"
-
-#: src/ptouch-print.c:266
-#, c-format
-msgid "writing image '%s' failed\n"
-msgstr "Schreiben der Bilddatei '%s' fehlgeschlagen\n"
-
-#: src/ptouch-print.c:288
-#, c-format
-msgid "debug: o baseline offset - %d\n"
-msgstr ""
-
-#: src/ptouch-print.c:289
-#, c-format
-msgid "debug: text baseline offset - %d\n"
-msgstr ""
-
-#: src/ptouch-print.c:348
-#, c-format
-msgid "render_text(): %i lines, font = '%s', align = '%c'\n"
-msgstr ""
-
-#: src/ptouch-print.c:351
-#, c-format
-msgid "warning: font config not available\n"
-msgstr "Warnung: fontconfig ist nicht verfügbar\n"
-
-#: src/ptouch-print.c:355
-#, c-format
-msgid "setting font size=%i\n"
-msgstr "setze Zeichensatzgrösse=%i\n"
-
-#: src/ptouch-print.c:359
-#, c-format
-msgid "could not estimate needed font size\n"
-msgstr "Konnte die notwendige Zeichensatzgrösse nicht bestimmen\n"
-
-#: src/ptouch-print.c:366
-#, c-format
-msgid "choosing font size=%i\n"
-msgstr "Wähle Zeichensatzgrösse %i\n"
-
-#: src/ptouch-print.c:382 src/ptouch-print.c:416
-#, c-format
-msgid "error in gdImageStringFT: %s\n"
-msgstr "Fehler in Funktion gdImageStringFT(): %s\n"
-
-#: src/ptouch-print.c:627
-#, c-format
-msgid "Only up to %d lines are supported"
-msgstr ""
-
-#: src/ptouch-print.c:640
+#: src/ptouch-print.c:130
 msgid "No arguments supported"
 msgstr ""
 
-#: src/ptouch-print.c:645
+#: src/ptouch-print.c:132
 msgid "Option --writepng missing"
 msgstr ""
 
-#: src/ptouch-print.c:648
+#: src/ptouch-print.c:133
 msgid "Options --force_tape_width and --info can't be used together"
 msgstr ""
 
-#: src/ptouch-print.c:679
-#, c-format
-msgid "ptouch_init() failed\n"
-msgstr "ptouch_init() fehlgeschlagen\n"
-
-#: src/ptouch-print.c:682
-#, c-format
-msgid "ptouch_getstatus() failed\n"
-msgstr "ptouch_getstatus() fehlgeschlagen\n"
-
-#: src/ptouch-print.c:696
+#: src/ptouch-print.c:168
 #, fuzzy, c-format
 msgid "maximum printing width for this printer is %ldpx\n"
 msgstr "Maximal druckbare Breite für dieses Schriftband sind %ipx\n"
 
-#: src/ptouch-print.c:697
+#: src/ptouch-print.c:169
 #, fuzzy, c-format
 msgid "maximum printing width for this tape is %ldpx\n"
 msgstr "Maximal druckbare Breite für dieses Schriftband sind %ipx\n"
 
-#: src/ptouch-print.c:722
+#: src/ptouch-render.c:34
 #, c-format
-msgid "failed to load image file\n"
+msgid "nothing to print\n"
 msgstr ""
 
-#: src/ptouch-print.c:731
+#: src/ptouch-render.c:41
 #, c-format
-msgid "could not render text\n"
-msgstr "Konnte Text nicht rendern\n"
+msgid "image is too large (%ipx x %ipx)\n"
+msgstr "Bild ist zu gross (%ipx x %ipx)\n"
 
-#: src/ptouch-print.c:776
+#: src/ptouch-render.c:42
 #, c-format
-msgid "ptouch_finalize(%d) failed\n"
-msgstr "ptouch_finalize(%d) fehlgeschlagen\n"
+msgid "maximum printing width for this tape is %ipx\n"
+msgstr "Maximal druckbare Breite für dieses Schriftband sind %ipx\n"
+
+#: src/ptouch-render.c:46
+#, fuzzy, c-format
+msgid "image size (%ipx x %ipx)\n"
+msgstr "Bild ist zu gross (%ipx x %ipx)\n"
+
+#: src/ptouch-render.c:56
+#, c-format
+msgid "ptouch_rasterstart() failed\n"
+msgstr "ptouch_rasterstart() fehlgeschlagen\n"
+
+#: src/ptouch-render.c:62
+#, c-format
+msgid "send print information command\n"
+msgstr ""
+
+#: src/ptouch-render.c:68
+#, c-format
+msgid "send PT-D460BT magic commands\n"
+msgstr ""
+
+#: src/ptouch-render.c:75
+#, c-format
+msgid "send precut command\n"
+msgstr ""
+
+#: src/ptouch-render.c:83
+#, c-format
+msgid "send PT-D460BT chain commands\n"
+msgstr ""
+
+#: src/ptouch-render.c:95
+#, fuzzy, c-format
+msgid "ptouch_sendraster() failed\n"
+msgstr "ptouch_send() fehlgeschlagen\n"
+
+#: src/ptouch-render.c:139
+#, c-format
+msgid "writing image '%s' failed\n"
+msgstr "Schreiben der Bilddatei '%s' fehlgeschlagen\n"
+
+#: src/ptouch-render.c:155
+#, c-format
+msgid "debug: o baseline offset - %d\n"
+msgstr ""
+
+#: src/ptouch-render.c:156
+#, c-format
+msgid "debug: text baseline offset - %d\n"
+msgstr ""
+
+#: src/ptouch-render.c:208
+#, c-format
+msgid "render_text(): %i lines, font = '%s', align = '%c'\n"
+msgstr ""
+
+#: src/ptouch-render.c:211
+#, c-format
+msgid "warning: font config not available\n"
+msgstr "Warnung: fontconfig ist nicht verfügbar\n"
+
+#: src/ptouch-render.c:237
+#, c-format
+msgid "error in gdImageStringFT: %s\n"
+msgstr "Fehler in Funktion gdImageStringFT(): %s\n"
+
+#: src/ptouch-render.c:361
+#, c-format
+msgid "Only up to %d lines are supported"
+msgstr ""
+
+#, c-format
+#~ msgid "setting font size=%i\n"
+#~ msgstr "setze Zeichensatzgrösse=%i\n"
+
+#, c-format
+#~ msgid "could not estimate needed font size\n"
+#~ msgstr "Konnte die notwendige Zeichensatzgrösse nicht bestimmen\n"
+
+#, c-format
+#~ msgid "choosing font size=%i\n"
+#~ msgstr "Wähle Zeichensatzgrösse %i\n"
+
+#, c-format
+#~ msgid "ptouch_init() failed\n"
+#~ msgstr "ptouch_init() fehlgeschlagen\n"
+
+#, c-format
+#~ msgid "ptouch_getstatus() failed\n"
+#~ msgstr "ptouch_getstatus() fehlgeschlagen\n"
+
+#, c-format
+#~ msgid "could not render text\n"
+#~ msgstr "Konnte Text nicht rendern\n"
+
+#, c-format
+#~ msgid "ptouch_finalize(%d) failed\n"
+#~ msgstr "ptouch_finalize(%d) fehlgeschlagen\n"
 
 #, c-format
 #~ msgid "ptouch-print version %s by Dominic Radermacher\n"

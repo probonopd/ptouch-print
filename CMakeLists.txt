@@ -19,10 +19,13 @@ find_package(argp REQUIRED)
 pkg_check_modules(LIBUSB REQUIRED libusb-1.0)
 
 # Configure project executable
-add_executable(${PROJECT_NAME})
+add_library(ptouch STATIC
+	src/libptouch.c
+	src/ptouch-render.c
+)
 
-target_include_directories(${PROJECT_NAME} PUBLIC
-	${CMAKE_BINARY_DIR}	# HB9HEI - location of generated version.h
+target_include_directories(ptouch PUBLIC
+	${CMAKE_BINARY_DIR}
 	${CMAKE_SOURCE_DIR}/include
 	${GD_INCLUDE_DIR}
 	${LIBUSB_INCLUDE_DIRS}
@@ -30,7 +33,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 	${ARGP_INCLUDE_DIR}
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE
+target_link_libraries(ptouch PUBLIC
 	${GD_LIBRARIES}
 	${LIBUSB_LIBRARIES}
 	${LIBUSB_LINK_LIBRARIES}
@@ -38,13 +41,22 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 	${ARGP_LIBRARIES}
 )
 
-target_sources(${PROJECT_NAME} PRIVATE
-	include/ptouch.h
-	src/libptouch.c
-	src/ptouch-print.c
+add_executable(${PROJECT_NAME} src/ptouch-print.c)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
+	ptouch
+)
+
+target_include_directories(${PROJECT_NAME} PRIVATE
+	${CMAKE_BINARY_DIR}
+	${CMAKE_SOURCE_DIR}/include
 )
 
 add_dependencies(${PROJECT_NAME}
+	git-version
+)
+
+add_dependencies(ptouch
 	git-version
 )
 

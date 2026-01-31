@@ -17,6 +17,9 @@
 	Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
 
+#ifndef PTOUCH_H
+#define PTOUCH_H
+
 #include <stdint.h>
 #ifdef __FreeBSD__
 #include <libusb.h>
@@ -121,3 +124,4 @@ void ptouch_list_supported();
 const char* pt_mediatype(unsigned char media_type);
 const char* pt_tapecolor(unsigned char tape_color);
 const char* pt_textcolor(unsigned char text_color);
+#endif

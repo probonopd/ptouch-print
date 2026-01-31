@@ -1,5 +1,5 @@
 /*
-	ptouch-print - Print labels with images or text on a Brother P-Touch
+	ptouch-utility - Print labels with images or text on a Brother P-touch
 
 	Copyright (C) 2015-2025 Dominic Radermacher <dominic@familie-radermacher.ch>
 
@@ -32,7 +32,7 @@
 
 #define _(s) gettext(s)
 
-#define P_NAME "ptouch-print"
+#define P_NAME "ptouch-utility"
 
 struct arguments {
 	align_type_t align;
@@ -42,6 +42,7 @@ struct arguments {
 	bool debug;
 	bool info;
 	bool invert;
+	bool rotate;
 	char *font_file;
 	int font_size;
 	int forced_tape_width;
@@ -55,13 +56,14 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state);
 
 const char *argp_program_version = P_NAME " " VERSION;
 const char *argp_program_bug_address = "Dominic Radermacher <dominic@familie-radermacher.ch>";
-static char doc[] = "ptouch-print is a command line tool to print labels on Brother P-Touch printers on Linux.";
+static char doc[] = "ptouch-utility is a command line tool to print labels on Brother P-touch printers on Linux.";
 
 static struct argp_option options[] = {
 	{ 0, 0, 0, 0, "options:", 1},
 	{ "debug", 1, 0, 0, "Enable debug output", 1},
 	{ "verbose", 'v', 0, 0, "Enable verbose output (same as --debug)", 1},
 	{ "invert", 30, 0, 0, "Invert output (print white on black background)", 1},
+	{ "rot90", 32, 0, 0, "Rotate text by 90 degrees counter-clockwise", 1},
 	{ "font", 2, "<file>", 0, "Use font <file> or <name>", 1},
 	{ "fontsize", 3, "<size>", 0, "Manually set font size", 1},
 	{ "writepng", 4, "<file>", 0, "Instead of printing, write output to png <file>", 1},
@@ -75,7 +77,7 @@ static struct argp_option options[] = {
 	{ "pad", 'p', "<n>", 0, "Add n pixels padding (blank tape)", 2},
 	{ "chain", 10, 0, 0, "Skip final feed of label and any automatic cut", 2},
 	{ "precut", 11, 0, 0, "Add a cut before the label (useful in chain mode for cuts with minimal waste)", 2},
-	{ "newline", 'n', "<text>", 0, "Add text in a new line (up to 8 lines). \\n will be replaced by a newline", 2},
+	{ "newline", 'n', "<text>", 0, "Add text in a new line. \\n will be replaced by a newline", 2},
 	{ "align", 'a', "<l|c|r>", 0, "Align text (when printing multiple lines)", 2},
 	{ 0, 0, 0, 0, "other commands:", 3},
 	{ "info", 20, 0, 0, "Show info about detected tape", 3},
@@ -93,6 +95,7 @@ struct arguments arguments = {
 	.debug = false,
 	.info = false,
 	.invert = false,
+	.rotate = false,
 	.font_file = "Sans",
 	.font_size = 0,
 	.forced_tape_width = 0,
@@ -111,6 +114,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 		case 2: arguments->font_file = arg; break;
 		case 3: arguments->font_size = strtol(arg, NULL, 10); break;
 		case 30: arguments->invert = true; break;
+		case 32: arguments->rotate = true; break;
 		case 4: arguments->save_png = arg; break;
 		case 5: arguments->forced_tape_width = strtol(arg, NULL, 10); break;
 		case 6: arguments->copies = strtol(arg, NULL, 10); break;
@@ -139,6 +143,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 			break;
 		default: return ARGP_ERR_UNKNOWN;
 	}
+	render_args.rotate = arguments->rotate;
 	render_args.debug = arguments->debug || (arguments->verbose > 0);
 	render_args.align = arguments->align;
 	render_args.font_file = arguments->font_file;

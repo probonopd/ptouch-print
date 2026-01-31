@@ -6,9 +6,10 @@ ifeq ($(GNUSUPPORT),no)
 $(error GNUstep development libraries not found. Install packages providing pkg-config entries 'gnustep-base' and 'gnustep-gui')
 endif
 
-APP_NAME = PtouchGUI
-PtouchGUI_OBJC_FILES = src-gui/PtouchGUI.m src/ptouch-render-gnustep.m
-PtouchGUI_C_FILES = src/libptouch.c src/ptouch-render.c
+APP_NAME = PtouchUtility
+PtouchUtility_RESOURCE_FILES = PtouchUtilityInfo.plist
+PtouchUtility_OBJC_FILES = src-gui/PtouchUtility.m src/ptouch-render-gnustep.m
+PtouchUtility_C_FILES = src/libptouch.c src/ptouch-render.c
 
 # Include directories
 ADDITIONAL_INCLUDE_DIRS += -Iinclude
@@ -20,8 +21,8 @@ ADDITIONAL_CPPFLAGS += $(shell pkg-config --cflags libusb-1.0 gnustep-base) -DUS
 
 
 # Ensure tool links against gnustep-gui which may not provide a pkg-config entry on some systems
-ptouch_print_LDFLAGS += -lgnustep-gui
-ptouch-print_LDFLAGS += -lgnustep-gui
+ptouch_utility_LDFLAGS += -lgnustep-gui
+ptouch-utility_LDFLAGS += -lgnustep-gui
 # Include directories
 ADDITIONAL_INCLUDE_DIRS += -Iinclude
 
@@ -31,20 +32,20 @@ ADDITIONAL_CPPFLAGS += $(shell pkg-config --cflags libusb-1.0 gnustep-base gnust
 
 include $(GNUSTEP_MAKEFILES)/application.make
 
-# Command-line tool: ptouch-print
-TOOL_NAME = ptouch-print
+# Command-line tool: ptouch-utility
+TOOL_NAME = ptouch-utility
 # gnustep-make expects instance variables named for the tool; some systems
-# use the hyphenated name (ptouch-print) whereas others use underscores.
+# use the hyphenated name (ptouch-utility) whereas others use underscores.
 # Define both forms to be safe.
-ptouch_print_C_FILES = src/ptouch-print.c src/libptouch.c src/ptouch-render.c
-ptouch_print_OBJC_FILES = src/ptouch-render-gnustep.m
-ptouch_print_LDFLAGS += $(shell pkg-config --libs libusb-1.0 gnustep-base gnustep-gui)
-ptouch_print_CFLAGS += $(shell pkg-config --cflags libusb-1.0 gnustep-base gnustep-gui)
+ptouch_utility_C_FILES = src/ptouch-utility.c src/libptouch.c src/ptouch-render.c
+ptouch_utility_OBJC_FILES = src/ptouch-render-gnustep.m
+ptouch_utility_LDFLAGS += $(shell pkg-config --libs libusb-1.0 gnustep-base gnustep-gui)
+ptouch_utility_CFLAGS += $(shell pkg-config --cflags libusb-1.0 gnustep-base gnustep-gui)
 
-ptouch-print_C_FILES = $(ptouch_print_C_FILES)
-ptouch-print_OBJC_FILES = $(ptouch_print_OBJC_FILES)
-ptouch-print_LDFLAGS = $(ptouch_print_LDFLAGS)
-ptouch-print_CFLAGS = $(ptouch_print_CFLAGS)
+ptouch-utility_C_FILES = $(ptouch_utility_C_FILES)
+ptouch-utility_OBJC_FILES = $(ptouch_utility_OBJC_FILES)
+ptouch-utility_LDFLAGS = $(ptouch_utility_LDFLAGS)
+ptouch-utility_CFLAGS = $(ptouch_utility_CFLAGS)
 
 include $(GNUSTEP_MAKEFILES)/tool.make
 

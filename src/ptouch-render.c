@@ -12,6 +12,7 @@ struct render_arguments render_args = {
 	.font_file = "Sans",
 	.font_size = 0,
 	.debug = false,
+	.rotate = false,
 	.gray_threshold = (128*3),
 	.line_spacing_percent = 85
 };
@@ -114,10 +115,13 @@ void add_job(job_type_t type, int n, char *line)
 	job_t *new_job = (job_t*)malloc(sizeof(job_t));
 	if (!new_job) return;
 	new_job->type = type;
-	if (type == JOB_TEXT && n > MAX_LINES) n = MAX_LINES;
+	if (!render_args.rotate && type == JOB_TEXT && n > MAX_LINES) n = MAX_LINES;
 	new_job->n = n;
-	new_job->lines[0] = line;
-	for (int i=1; i<MAX_LINES; ++i) new_job->lines[i] = NULL;
+	new_job->lines = (char **)malloc(sizeof(char *) * (n > 0 ? n : 1));
+	if (new_job->lines) {
+		new_job->lines[0] = line;
+		for (int i=1; i<n; ++i) new_job->lines[i] = NULL;
+	}
 	new_job->next = NULL;
 	if (!last_added_job) {
 		jobs = last_added_job = new_job;
@@ -149,11 +153,13 @@ void add_text(struct argp_state *state, char *arg, bool new_job)
 			if (!last_added_job || last_added_job->type != JOB_TEXT) {
 				add_job(JOB_TEXT, 1, p);
 			} else {
-				if (last_added_job->n >= MAX_LINES) {
+				if (!render_args.rotate && last_added_job->n >= MAX_LINES) {
 					if (state) argp_failure(state, 1, EINVAL, _("Only up to %d lines are supported"), MAX_LINES);
 					return;
 				}
-				last_added_job->lines[last_added_job->n++] = p;
+				last_added_job->n++;
+				last_added_job->lines = (char **)realloc(last_added_job->lines, sizeof(char *) * last_added_job->n);
+				last_added_job->lines[last_added_job->n - 1] = p;
 			}
 		}
 		p = p_next;

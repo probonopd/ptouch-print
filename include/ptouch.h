@@ -1,5 +1,5 @@
 /*
-	ptouch-print - Print labels with images or text on a Brother P-Touch
+	ptouch-utility - Print labels with images or text on a Brother P-touch
 
 	Copyright (C) 2015-2023 Dominic Radermacher <dominic@familie-radermacher.ch>
 

@@ -169,7 +169,7 @@ int ptouch_open(ptouch_dev *ptdev)
 			}
 		}
 	}
-	fprintf(stderr, _("No P-Touch printer found on USB (remember to put switch to position E)\n"));
+	fprintf(stderr, _("No P-touch printer found on USB (remember to put switch to position E)\n"));
 	libusb_free_device_list(devs, 1);
 	return -1;
 }
@@ -233,7 +233,7 @@ int ptouch_send_d460bt_magic(ptouch_dev ptdev)
 	/* n1 and n2 are the length margin/spacing, in px? (uint16_t value, little endian) */
 	/* A value of 0x06 is equivalent to the width margin on 6mm tape */
 	/* A value of 0x01 adds barely any margin, suitable for image printing */
-	/* The default for P-Touch software is 0x0e */
+	/* The default for P-touch software is 0x0e */
 	/* n3 must be 0x4D or the print gets corrupted! */
 	/* n4 seems to be ignored or reserved. */
 	memcpy(cmd, "\x1b\x69\x64\x01\x00\x4d\x00", 7);

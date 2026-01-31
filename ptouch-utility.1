@@ -1,20 +1,20 @@
-.\" Man page for ptouch-print
+.\" Man page for ptouch-utility
 .\"
 .\" Copyright (C) 2015-2023 Dominic Radermacher
 .\"
 .\" You may distribute under the terms of the GNU General Public License.
 .\"
-.TH PTOUCH-PRINT 1 "2023-03-13" "1.5" "ptouch printer util"
+.TH PTOUCH-UTILITY 1 "2023-03-13" "1.5" "ptouch printer util"
 .SH NAME
-ptouch-print \- a command line tool to use Brother Ptouch label printers
+ptouch-utility \- a command line tool to use Brother P-touch label printers
 .SH SYNOPSIS
 .\" The general command line
-.B ptouch-print
+.B ptouch-utility
 .RI [\| "options" \|]\   <\| print\  command\  options\|>
 .SH DESCRIPTION
-.B ptouch-print
+.B ptouch-utility
 is a command line tool that can be used to print labels with several
-Brother Ptouch label printers.
+Brother P-touch label printers.
 
 .SH OPTIONS
 General options, font selection options and optput options are valid for the
@@ -30,9 +30,9 @@ once in any order, and will be executed in the given order.
 Enables printing of debugging information.
 .TP
 .BR \-\-timeout\  \fI<time>
-Set the seconds ptouch-print is waiting for finishing a previous ptouch-print command.
+Set the seconds ptouch-utility is waiting for finishing a previous ptouch-utility command.
 Default is 1 second. 0 (zero) means wait forever.
-Useful if ptouch-print is used in a script multiple times, and the device is waiting for the user
+Useful if ptouch-utility is used in a script multiple times, and the device is waiting for the user
 to use the mechanical cutter.
 
 .SS "Font selection options"
@@ -111,22 +111,22 @@ Printer device could not been opened.
 
 .SH EXAMPLES
 .TP
-\fBptouch-print\fR \fI--text\fR 'Hello World'
+\fBptouch-utility\fR \fI--text\fR 'Hello World'
 Print the text 'Hello World' in one line
 .TP
-\fBptouch-print\fR \fI--text\fR 'Hello\nWorld'
+\fBptouch-utility\fR \fI--text\fR 'Hello\nWorld'
 Print the text 'Hello World' in two lines ('Hello' in the first line
 and 'World' in the second line).
 .TP
-\fBptouch-print\fR \fI--text\fR 'Hello' 'World'
+\fBptouch-utility\fR \fI--text\fR 'Hello' 'World'
 Print the text 'Hello World' in two lines ('Hello' in the first line
 and 'World' in the second line).
 .TP
-\fBptouch-print\fR \fI--image\fR icon.png
+\fBptouch-utility\fR \fI--image\fR icon.png
 Print the image contained in the PNG image file 'icon.png'.
 The image file must be palette based PNG format with two colors.
 
 .SH AUTHOR
 Written by Dominic Radermacher (dominic@familie-radermacher.ch).
 
-Also see https://dominic.familie-radermacher.ch/projekte/ptouch-print/
+Also see https://dominic.familie-radermacher.ch/projekte/ptouch-utility/

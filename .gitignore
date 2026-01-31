@@ -8,7 +8,7 @@ Makefile
 build/
 
 # Executables and test artifacts
-ptouch-print
+ptouch-utility
 test-*.png
 test.png
 
@@ -35,7 +35,7 @@ ptouch.pot
 *.o
 *.log
 Info-gnustep.plist
-PtouchGUI.app
+PtouchUtility.app
 gdb.txt
 *.pot
 *.po

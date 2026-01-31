@@ -9,9 +9,9 @@
     NSTextField *fontField;
     NSTextField *fontSizeField;
     NSPopUpButton *alignPopup;
-    NSTextField *pngField;
     NSTextField *tapeWidthField;
     NSButton *invertButton;
+    NSButton *rotateButton;
     NSButton *chainButton;
     NSButton *precutButton;
     NSTextField *statusLabel;
@@ -28,9 +28,11 @@
 - (void) print: (id)sender;
 - (void) savePng: (id)sender;
 - (void) showInfo: (id)sender;
+- (void) showAbout: (id)sender;
 - (void) updatePreview: (id)sender;
 - (void) schedulePreviewUpdate;
 - (void) renderPreviewNow;
+- (void) setupMenus;
 @end
 
 @implementation PtouchAppDelegate
@@ -38,65 +40,60 @@
 
 - (void) applicationDidFinishLaunching: (NSNotification *)aNotification
 {
+    [self setupMenus];
     unsigned int styleMask = NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask;
-    window = [[NSWindow alloc] initWithContentRect: NSMakeRect(100, 100, 400, 650)
+    window = [[NSWindow alloc] initWithContentRect: NSMakeRect(100, 100, 500, 650)
                                           styleMask: styleMask
                                             backing: NSBackingStoreBuffered
                                               defer: NO];
-    [window setTitle: @"P-Touch"];
+    [window setTitle: @"P-touch Utility"];
 
     NSView *contentView = [window contentView];
 
-    // Label
-    NSTextField *label1 = [[NSTextField alloc] initWithFrame: NSMakeRect(20, 610, 360, 20)];
-    [label1 setStringValue: @"Text:"];
-    [label1 setBezeled: NO];
-    [label1 setDrawsBackground: NO];
-    [label1 setEditable: NO];
-    [contentView addSubview: label1];
+
 
     // Text View
-    NSScrollView *scroll = [[NSScrollView alloc] initWithFrame: NSMakeRect(20, 500, 360, 100)];
+    NSScrollView *scroll = [[NSScrollView alloc] initWithFrame: NSMakeRect(24, 535, 452, 100)];
     [scroll setHasVerticalScroller: YES];
-    textView = [[NSTextView alloc] initWithFrame: NSMakeRect(0, 0, 360, 100)];
+    textView = [[NSTextView alloc] initWithFrame: NSMakeRect(0, 0, 452, 100)];
     [textView setDelegate: self];
     [scroll setDocumentView: textView];
     [contentView addSubview: scroll];
 
     // Font
-    NSTextField *label2 = [[NSTextField alloc] initWithFrame: NSMakeRect(20, 470, 50, 20)];
+    NSTextField *label2 = [[NSTextField alloc] initWithFrame: NSMakeRect(24, 497, 50, 22)];
     [label2 setStringValue: @"Font:"];
     [label2 setBezeled: NO];
     [label2 setDrawsBackground: NO];
     [label2 setEditable: NO];
     [contentView addSubview: label2];
 
-    fontField = [[NSTextField alloc] initWithFrame: NSMakeRect(70, 470, 150, 25)];
+    fontField = [[NSTextField alloc] initWithFrame: NSMakeRect(82, 497, 150, 22)];
     [fontField setStringValue: @"Sans"];
     [fontField setDelegate: self];
     [contentView addSubview: fontField];
 
-    NSTextField *label3 = [[NSTextField alloc] initWithFrame: NSMakeRect(230, 470, 70, 20)];
+    NSTextField *label3 = [[NSTextField alloc] initWithFrame: NSMakeRect(248, 497, 100, 22)];
     [label3 setStringValue: @"Size (0=auto):"];
     [label3 setBezeled: NO];
     [label3 setDrawsBackground: NO];
     [label3 setEditable: NO];
     [contentView addSubview: label3];
 
-    fontSizeField = [[NSTextField alloc] initWithFrame: NSMakeRect(310, 470, 70, 25)];
+    fontSizeField = [[NSTextField alloc] initWithFrame: NSMakeRect(356, 497, 70, 22)];
     [fontSizeField setStringValue: @"0"];
     [fontSizeField setDelegate: self];
     [contentView addSubview: fontSizeField];
 
     // Align
-    NSTextField *label4 = [[NSTextField alloc] initWithFrame: NSMakeRect(20, 440, 50, 20)];
+    NSTextField *label4 = [[NSTextField alloc] initWithFrame: NSMakeRect(24, 456, 50, 22)];
     [label4 setStringValue: @"Align:"];
     [label4 setBezeled: NO];
     [label4 setDrawsBackground: NO];
     [label4 setEditable: NO];
     [contentView addSubview: label4];
 
-    alignPopup = [[NSPopUpButton alloc] initWithFrame: NSMakeRect(70, 440, 100, 25) pullsDown: NO];
+    alignPopup = [[NSPopUpButton alloc] initWithFrame: NSMakeRect(82, 456, 120, 25) pullsDown: NO];
     [alignPopup addItemWithTitle: @"Left"];
     [alignPopup addItemWithTitle: @"Center"];
     [alignPopup addItemWithTitle: @"Right"];
@@ -105,69 +102,60 @@
     [contentView addSubview: alignPopup];
 
     // Options
-    invertButton = [[NSButton alloc] initWithFrame: NSMakeRect(20, 410, 100, 25)];
+    invertButton = [[NSButton alloc] initWithFrame: NSMakeRect(24, 422, 100, 18)];
     [invertButton setButtonType: NSSwitchButton];
     [invertButton setTitle: @"Invert"];
     [invertButton setTarget: self];
     [invertButton setAction: @selector(schedulePreviewUpdate)];
     [contentView addSubview: invertButton];
 
-    chainButton = [[NSButton alloc] initWithFrame: NSMakeRect(130, 410, 100, 25)];
+    rotateButton = [[NSButton alloc] initWithFrame: NSMakeRect(134, 422, 100, 18)];
+    [rotateButton setButtonType: NSSwitchButton];
+    [rotateButton setTitle: @"Rotate 90"];
+    [rotateButton setTarget: self];
+    [rotateButton setAction: @selector(schedulePreviewUpdate)];
+    [contentView addSubview: rotateButton];
+
+    chainButton = [[NSButton alloc] initWithFrame: NSMakeRect(244, 422, 100, 18)];
     [chainButton setButtonType: NSSwitchButton];
     [chainButton setTitle: @"Chain"];
     [contentView addSubview: chainButton];
 
-    precutButton = [[NSButton alloc] initWithFrame: NSMakeRect(240, 410, 100, 25)];
+    precutButton = [[NSButton alloc] initWithFrame: NSMakeRect(354, 422, 100, 18)];
     [precutButton setButtonType: NSSwitchButton];
     [precutButton setTitle: @"Precut"];
     [contentView addSubview: precutButton];
 
     // Preview
-    NSTextField *labelPreview = [[NSTextField alloc] initWithFrame: NSMakeRect(20, 380, 100, 20)];
+    NSTextField *labelPreview = [[NSTextField alloc] initWithFrame: NSMakeRect(24, 384, 100, 22)];
     [labelPreview setStringValue: @"Preview:"];
     [labelPreview setBezeled: NO];
     [labelPreview setDrawsBackground: NO];
     [labelPreview setEditable: NO];
     [contentView addSubview: labelPreview];
 
-    previewImageView = [[NSImageView alloc] initWithFrame: NSMakeRect(20, 270, 360, 100)];
+    previewImageView = [[NSImageView alloc] initWithFrame: NSMakeRect(24, 276, 452, 100)];
     [previewImageView setImageScaling: NSImageScaleProportionallyDown];
     [previewImageView setEditable: NO];
     [previewImageView setAnimates: NO];
     [contentView addSubview: previewImageView];
 
-    // PNG
-    NSTextField *label5 = [[NSTextField alloc] initWithFrame: NSMakeRect(20, 230, 100, 20)];
-    [label5 setStringValue: @"Output PNG:"];
-    [label5 setBezeled: NO];
-    [label5 setDrawsBackground: NO];
-    [label5 setEditable: NO];
-    [contentView addSubview: label5];
-
-    pngField = [[NSTextField alloc] initWithFrame: NSMakeRect(120, 230, 150, 25)];
-    [pngField setStringValue: @"output.png"];
-    [contentView addSubview: pngField];
-
-    NSTextField *label6 = [[NSTextField alloc] initWithFrame: NSMakeRect(20, 200, 150, 20)];
-    [label6 setStringValue: @"Force Width (px, 0=auto):"];
+    NSTextField *label6 = [[NSTextField alloc] initWithFrame: NSMakeRect(24, 238, 150, 22)];
+    [label6 setStringValue: @"Force Width (px):"];
     [label6 setBezeled: NO];
     [label6 setDrawsBackground: NO];
     [label6 setEditable: NO];
     [contentView addSubview: label6];
 
-    tapeWidthField = [[NSTextField alloc] initWithFrame: NSMakeRect(180, 200, 50, 25)];
+    tapeWidthField = [[NSTextField alloc] initWithFrame: NSMakeRect(184, 238, 60, 22)];
     [tapeWidthField setStringValue: @"0"];
     [tapeWidthField setDelegate: self];
     [contentView addSubview: tapeWidthField];
 
     // Buttons (Show Info removed; info shown on startup)
-    NSButton *pngBtn = [[NSButton alloc] initWithFrame: NSMakeRect(130, 150, 120, 30)];
-    [pngBtn setTitle: @"Save to PNG"];
-    [pngBtn setTarget: self];
-    [pngBtn setAction: @selector(savePng:)];
-    [contentView addSubview: pngBtn];
 
-    printBtn = [[NSButton alloc] initWithFrame: NSMakeRect(260, 150, 100, 30)];
+
+    printBtn = [[NSButton alloc] initWithFrame: NSMakeRect(376, 70, 100, 20)];
     [printBtn setTitle: @"Print"];
     [printBtn setTarget: self];
     [printBtn setAction: @selector(print:)];
@@ -175,11 +163,19 @@
     /* Default disabled until we know tape state */
     [printBtn setEnabled: NO];
 
-    statusLabel = [[NSTextField alloc] initWithFrame: NSMakeRect(20, 20, 360, 100)];
+    /* Status bar (single-line) */
+    statusLabel = [[NSTextField alloc] initWithFrame: NSMakeRect(24, 20, 452, 20)];
     [statusLabel setStringValue: @"Ready."];
-    [statusLabel setBezeled: YES];
+    [statusLabel setBezeled: NO];
     [statusLabel setDrawsBackground: YES];
+    /* light gray background for status feel */
+    @try {
+        [statusLabel setBackgroundColor: [NSColor colorWithCalibratedWhite:0.95 alpha:1.0]];
+    } @catch (id ex) {
+        /* some backends may not support colorSetting; ignore */
+    }
     [statusLabel setEditable: NO];
+    [statusLabel setSelectable: NO];
     [contentView addSubview: statusLabel];
 
     [window makeKeyAndOrderFront: self];
@@ -215,11 +211,143 @@
     }
 }
 
+- (void) setupMenus
+{
+    NSMenu *mainMenu = [[NSMenu alloc] init];
+    
+    // Application Menu
+    NSMenuItem *appMenuItem = [[NSMenuItem alloc] initWithTitle: @"P-touch Utility" action: NULL keyEquivalent: @""];
+    NSMenu *appMenu = [[NSMenu alloc] initWithTitle: @"P-touch Utility"];
+    [appMenu addItemWithTitle: @"About P-touch Utility" action: @selector(orderFrontStandardAboutPanel:) keyEquivalent: @""];
+    [appMenu addItem: [NSMenuItem separatorItem]];
+    [appMenu addItemWithTitle: @"Quit" action: @selector(terminate:) keyEquivalent: @"q"];
+    [appMenuItem setSubmenu: appMenu];
+    [mainMenu addItem: appMenuItem];
+    
+    // File Menu
+    NSMenuItem *fileMenuItem = [[NSMenuItem alloc] initWithTitle: @"File" action: NULL keyEquivalent: @""];
+    NSMenu *fileMenu = [[NSMenu alloc] initWithTitle: @"File"];
+    NSMenuItem *saveItem = [[NSMenuItem alloc] initWithTitle: @"Save as..." action: @selector(saveMenu:) keyEquivalent: @"s"];
+    [saveItem setTarget: self];
+    [fileMenu addItem: saveItem];
+    [fileMenu addItem: [NSMenuItem separatorItem]];
+    [fileMenu addItemWithTitle: @"Close" action: @selector(performClose:) keyEquivalent: @"w"];
+    [fileMenuItem setSubmenu: fileMenu];
+    [mainMenu addItem: fileMenuItem];
+    
+    // Edit Menu
+    NSMenuItem *editMenuItem = [[NSMenuItem alloc] initWithTitle: @"Edit" action: NULL keyEquivalent: @""];
+    NSMenu *editMenu = [[NSMenu alloc] initWithTitle: @"Edit"];
+    [editMenu addItemWithTitle: @"Cut" action: @selector(cut:) keyEquivalent: @"x"];
+    [editMenu addItemWithTitle: @"Copy" action: @selector(copy:) keyEquivalent: @"c"];
+    [editMenu addItemWithTitle: @"Paste" action: @selector(paste:) keyEquivalent: @"v"];
+    [editMenu addItemWithTitle: @"Select All" action: @selector(selectAll:) keyEquivalent: @"a"];
+    [editMenuItem setSubmenu: editMenu];
+    [mainMenu addItem: editMenuItem];
+
+    [NSApp setMainMenu: mainMenu];
+}
+
+- (void) showAbout: (id)sender
+{
+    [NSApp orderFrontStandardAboutPanel: sender];
+}
+
+- (void) saveMenu: (id)sender
+{
+    /* Ensure app is active so the save dialog appears in front */
+    printf("[GUI] Save menu invoked\n");
+    [NSApp activateIgnoringOtherApps: YES];
+    [statusLabel setStringValue: @"Opening Save As dialog..."];
+
+    /* Offer a Save dialog pre-configured for PNG files with a default name */
+    NSSavePanel *panel = [NSSavePanel savePanel];
+#if defined(NSAppKitVersionNumber)
+    [panel setAllowedFileTypes: @[ @"png" ]];
+#endif
+    /* Derive a sensible default filename from the first words of the Text area */
+    NSString *textString = [[textView string] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    NSString *defaultName = @"untitled";
+    if (textString && [textString length] > 0) {
+        NSArray *words = [textString componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+        NSMutableArray *picked = [NSMutableArray array];
+        for (NSString *w in words) {
+            if ([w length] > 0) {
+                [picked addObject:w];
+                if ([picked count] >= 3) break; /* use up to first 3 words */
+            }
+        }
+        if ([picked count] > 0) {
+            NSString *joined = [picked componentsJoinedByString:@"_"];
+            /* Remove characters not valid in filenames */
+            NSCharacterSet *allowed = [NSCharacterSet characterSetWithCharactersInString:@"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_."]; 
+            NSArray *parts = [joined componentsSeparatedByCharactersInSet:[allowed invertedSet]];
+            NSString *san = [parts componentsJoinedByString:@"_"];
+            if ([san length] > 0) {
+                /* Limit length */
+                if ([san length] > 40) san = [san substringToIndex:40];
+                defaultName = san;
+            }
+        }
+    }
+    [panel setNameFieldStringValue: [defaultName stringByAppendingPathExtension:@"png"]];
+
+    NSInteger res = 0;
+    if ([panel respondsToSelector: @selector(runModal)]) {
+        res = [panel runModal];
+    } else if ([panel respondsToSelector: @selector(runModalForDirectory:file:)]) {
+        /* Older GNUstep API fallback */
+        res = (NSInteger)[panel performSelector: @selector(runModalForDirectory:file:) withObject: nil withObject: [defaultName stringByAppendingPathExtension:@"png"]];
+    } else {
+        /* Fallback: bring to front and wait briefly — best-effort */
+        [panel orderFront: self];
+    }
+
+    if (res == NSOKButton || res == NSModalResponseOK) {
+        NSString *path = [[panel URL] path];
+        const char *filename = [path UTF8String];
+        [statusLabel setStringValue: [NSString stringWithFormat: @"Saving to %@...", path]];
+        [self setupRenderArgs];
+        [self cleanupJobs];
+        char *text = (char *)[[textView string] UTF8String];
+        if (strlen(text) > 0) {
+            char *text_copy = strdup(text);
+            add_text(NULL, text_copy, true);
+        }
+        int print_width = [tapeWidthField intValue];
+        if (print_width <= 0) print_width = 76;
+        image_t *out = NULL;
+        for (job_t *job = jobs; job != NULL; job = job->next) {
+            if (job->type == JOB_TEXT) {
+                image_t *im = render_text(render_args.font_file, job->lines, job->n, print_width);
+                if (im) {
+                    out = img_append(out, im);
+                    image_destroy(im);
+                }
+            }
+        }
+        if (out) {
+            if ([invertButton state] == NSOnState) invert_image(out);
+            if (write_png(out, filename) == 0) {
+                [statusLabel setStringValue: [NSString stringWithFormat: @"Saved to %@", path]];
+            } else {
+                [statusLabel setStringValue: @"Error saving PNG"];
+            }
+            image_destroy(out);
+        } else {
+            [statusLabel setStringValue: @"Nothing to render."];
+        }
+    } else {
+        [statusLabel setStringValue: @"Save cancelled."];
+    }
+}
+
 - (void) setupRenderArgs
 {
     render_args.font_file = (char *)[[fontField stringValue] UTF8String];
     render_args.font_size = [fontSizeField intValue];
     render_args.debug = false;
+    render_args.rotate = [rotateButton state] == NSOnState;
     
     NSString *align = [alignPopup titleOfSelectedItem];
     if ([align isEqualToString: @"Center"]) render_args.align = ALIGN_CENTER;
@@ -232,9 +360,10 @@
     for (job_t *job = jobs; job != NULL; ) {
         job_t *next = job->next;
         if (job->type == JOB_TEXT) {
-            if (job->n > 0 && job->lines[0]) {
+            if (job->n > 0 && job->lines && job->lines[0]) {
                 free(job->lines[0]);
             }
+            if (job->lines) free(job->lines);
         }
         free(job);
         job = next;
@@ -432,15 +561,23 @@
     
     if (out) {
         if ([invertButton state] == NSOnState) invert_image(out);
-        const char *filename = [[pngField stringValue] UTF8String];
-        if (write_png(out, filename) == 0) {
-            [statusLabel setStringValue: [NSString stringWithFormat: @"Saved to %s", filename]];
+        NSSavePanel *panel = [NSSavePanel savePanel];
+        [panel setNameFieldStringValue: @"output.png"];
+        NSInteger res = [panel runModal];
+        if (res == NSOKButton || res == NSModalResponseOK) {
+            NSString *path = [[panel URL] path];
+            const char *filename = [path UTF8String];
+            if (write_png(out, filename) == 0) {
+                [statusLabel setStringValue: [NSString stringWithFormat: @"Saved to %@", path]];
+            } else {
+                [statusLabel setStringValue: @"Error saving PNG"];
+            }
         } else {
-            [statusLabel setStringValue: @"Error saving PNG"];
+            [statusLabel setStringValue: @"Save cancelled."];
         }
         image_destroy(out);
     } else {
-        [statusLabel setStringValue: @"Nothing to render."];
+        [statusLabel setStringValue: @""];
     }
 }
 

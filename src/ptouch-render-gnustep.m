@@ -174,6 +174,22 @@ int find_fontsize(int want_px, char *font, char *text)
     }
 }
 
+int find_fontsize_width(int want_px, char *font, char *text)
+{
+    @autoreleasepool {
+        if (!text) return -1;
+        for (int i = 4; ; ++i) {
+            int w = needed_width(text, font, i);
+            if (w <= 0) return -1;
+            if (w <= want_px) {
+                /* keep trying */
+            } else {
+                return i-1 > 0 ? i-1 : -1;
+            }
+        }
+    }
+}
+
 int needed_width(char *text, char *font, int fsz)
 {
     @autoreleasepool {
@@ -195,6 +211,20 @@ int offset_x(char *text, char *font, int fsz)
     }
 }
 
+image_t *rotate_image_90ccw(image_t *im)
+{
+    if (!im) return NULL;
+    image_t *new_im = image_new(im->height, im->width);
+    if (!new_im) return NULL;
+    for (int y = 0; y < im->height; ++y) {
+        for (int x = 0; x < im->width; ++x) {
+            new_im->data[((im->width - 1 - x) * new_im->width) + y] = im->data[y * im->width + x];
+        }
+    }
+    image_destroy(im);
+    return new_im;
+}
+
 /* Render text into a monochrome image_t using GNUstep/AppKit */
 image_t *render_text(char *font, char *line[], int lines, int print_width)
 {
@@ -209,7 +239,12 @@ image_t *render_text(char *font, char *line[], int lines, int print_width)
             fsz = render_args.font_size;
         } else {
             for (int i = 0; i < lines; ++i) {
-                int tmp = find_fontsize(print_width/lines, font, line[i]);
+                int tmp;
+                if (render_args.rotate) {
+                    tmp = find_fontsize_width(print_width, font, line[i]);
+                } else {
+                    tmp = find_fontsize(print_width/lines, font, line[i]);
+                }
                 if (tmp < 0) {
                     if (render_args.debug) printf("render_text(): find_fontsize failed for line %d\n", i);
                     return NULL;
@@ -236,7 +271,22 @@ image_t *render_text(char *font, char *line[], int lines, int print_width)
             return NULL;
         }
 
-        image_t *im = image_new(x, print_width);
+        NSFont *nsf = nsfont_for(font, fsz);
+        int max_height = 0;
+        CGFloat asc = [nsf ascender];
+        /* Use ascender scaled by user-configurable percent to adjust spacing */
+        double spacing_factor = (render_args.line_spacing_percent > 0) ? (render_args.line_spacing_percent / 100.0) : 1.0;
+        int computed_lineheight = (int)ceil(asc * spacing_factor);
+        max_height = computed_lineheight;
+        int total_needed = max_height * lines;
+
+        image_t *im;
+        if (render_args.rotate) {
+            im = image_new(x, total_needed);
+        } else {
+            im = image_new(x, print_width);
+        }
+
         if (!im) {
             if (render_args.debug) printf("render_text(): failed to create image\n");
             return NULL;
@@ -250,31 +300,17 @@ image_t *render_text(char *font, char *line[], int lines, int print_width)
         [[NSColor whiteColor] setFill];
         NSRectFill(NSMakeRect(0, 0, im->width, im->height));
 
-        NSFont *nsf = nsfont_for(font, fsz);
         NSDictionary *attr = @{ NSFontAttributeName: nsf,
                                 NSForegroundColorAttributeName: [NSColor blackColor] };
 
-        int max_height = 0;
-        CGFloat asc = [nsf ascender];
-        CGFloat desc = [nsf descender];
-        /* Use ascender scaled by user-configurable percent to adjust spacing */
-        double spacing_factor = (render_args.line_spacing_percent > 0) ? (render_args.line_spacing_percent / 100.0) : 1.0;
-        int computed_lineheight = (int)ceil(asc * spacing_factor);
-        for (int i = 0; i < lines; ++i) {
-            if (computed_lineheight > max_height) max_height = computed_lineheight;
-            if (render_args.debug) printf("[debug] render_text: line %d height=%d (asc=%.2f desc=%.2f)\n", i, computed_lineheight, asc, desc);
-        }
-        int total_needed = max_height * lines;
-        if (render_args.debug) printf("[debug] render_text: max_height=%d total_needed=%d print_width=%d\n", max_height, total_needed, print_width);
-
-        if (total_needed > print_width) {
+        if (!render_args.rotate && total_needed > print_width) {
             printf("[error] render_text: text doesn't fit vertically\n");
             [img unlockFocus];
             image_destroy(im);
             return NULL;
         }
 
-        int top_margin = (print_width - total_needed) / 2; /* center the block */
+        int top_margin = render_args.rotate ? 0 : (print_width - total_needed) / 2; /* center the block */
         for (int i = 0; i < lines; ++i) {
             NSString *s = [NSString stringWithUTF8String:line[i]];
             int off_x = offset_x(line[i], font, fsz);
@@ -333,6 +369,9 @@ image_t *render_text(char *font, char *line[], int lines, int print_width)
             }
             if (render_args.debug) printf("[debug] render_text: img_dark_pixels=%d\n", img_dark);
             [rep release];
+            if (render_args.rotate) {
+                return rotate_image_90ccw(im);
+            }
             return im;
         }
 

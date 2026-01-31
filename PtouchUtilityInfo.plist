@@ -1,0 +1,11 @@
+{
+    ApplicationName = "P-touch Utility";
+    ApplicationDescription = "Print labels on Brother P-touch printers.";
+    ApplicationRelease = "2.1";
+    Authors = (
+        "Simon Peter",
+        "Based on ptouch-print",
+        "by Dominic Radermacher"
+    );
+    Copyright = "Copyright (C) 2015-2026 Simon Peter, Dominic Radermacher";
+}

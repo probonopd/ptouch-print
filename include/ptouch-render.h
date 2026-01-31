@@ -13,7 +13,7 @@ typedef enum { JOB_CUTMARK, JOB_IMAGE, JOB_PAD, JOB_TEXT, JOB_UNDEFINED } job_ty
 typedef struct job {
 	job_type_t type;
 	int n;
-	char *lines[MAX_LINES];
+	char **lines;
 	struct job *next;
 } job_t;
 
@@ -22,6 +22,7 @@ struct render_arguments {
 	char *font_file;
 	int font_size;
 	bool debug;
+	bool rotate;
 	int gray_threshold; /* threshold (sum of R+G+B) to consider pixel 'black' */
 	int line_spacing_percent; /* percent multiplier (100 = asc), <100 reduces space */
 };

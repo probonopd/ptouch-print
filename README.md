@@ -1,10 +1,10 @@
-# P-Touch GUI
+# P-touch Utility
 
-A small GNUstep GUI for printing labels with Brother P‑Touch printers.
+A small GNUstep GUI for printing labels with Brother P-touch printers.
 
 - Native GNUstep/AppKit rendering
-- Live preview and Save‑to‑PNG.
-- Automatic printer/tape detection: the app disables the **Print** button when the door is open or no tape is present and re‑queries tape info after the door closes.
+- Live preview and Save-to-PNG.
+- Automatic printer/tape detection: the app disables the **Print** button when the door is open or no tape is present and re-queries tape info after the door closes.
 
 Build
 
@@ -14,14 +14,14 @@ Build
 Run
 
 - Start the GUI from the project root:
-  `./PtouchGUI.app/PtouchGUI`
+  `./PtouchUtility.app/PtouchUtility`
 - Run from a terminal to see status/debug messages.
 
 Tools
+- `ptouch-utility`: CLI tool for label printing.
 
 - `obj/status-monitor` — poll and log printer status bytes for debugging.
 - `obj/render-test` — automated rendering tests.
-- `ptouch-print` — CLI printing tool (preserved for scripting/automation).
 
 Troubleshooting
 

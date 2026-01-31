@@ -1,8 +1,31 @@
-# generated files
+# Build and CMake files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
 build/
 
-# special directories
+# Executables and test artifacts
+ptouch-print
+test-*.png
+test.png
+
+# Generated translation and build files
+version.h
+de.gmo
+en.gmo
+po/*.gmo
+ptouch.pot
+
+# Keep these files from po/ directory but ignore generated files
 /po
 !/po/POTFILES.in
 !/po/LINGUAS
 !/po/Makevars
+
+# Editor backups
+*~
+*.swp
+
+# Misc
+.DS_Store

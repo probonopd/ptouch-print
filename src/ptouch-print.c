@@ -18,6 +18,7 @@
 */
 
 #include <argp.h>
+#include <errno.h>
 #include <stdio.h>	/* printf() */
 #include <stdlib.h>	/* exit(), malloc() */
 #include <stdbool.h>
@@ -77,6 +78,7 @@ gdImage *render_text(char *font, char *line[], int lines, int print_width);
 void invert_image(gdImage *im);
 void unsupported_printer(ptouch_dev ptdev);
 void add_job(job_type_t type, int n, char *line);
+void add_text(struct argp_state *state, char *arg, bool new_job);
 static error_t parse_opt(int key, char *arg, struct argp_state *state);
 
 const char *argp_program_version = P_NAME " " VERSION;
@@ -97,12 +99,12 @@ static struct argp_option options[] = {
 
 	{ 0, 0, 0, 0, "print commands:", 2},
 	{ "image", 'i', "<file>", 0, "Print the given image which must be a 2 color (black/white) png", 2},
-	{ "text", 't', "<text>", 0, "Print line of <text>. If the text contains spaces, use quotation marks taround it", 2},
+	{ "text", 't', "<text>", 0, "Print line of <text>. If the text contains spaces, use quotation marks around it. \\n will be replaced by a newline", 2},
 	{ "cutmark", 'c', 0, 0, "Print a mark where the tape should be cut", 2},
 	{ "pad", 'p', "<n>", 0, "Add n pixels padding (blank tape)", 2},
 	{ "chain", 10, 0, 0, "Skip final feed of label and any automatic cut", 2},
 	{ "precut", 11, 0, 0, "Add a cut before the label (useful in chain mode for cuts with minimal waste)", 2},
-	{ "newline", 'n', "<text>", 0, "Add text in a new line (up to 8 lines)", 2},
+	{ "newline", 'n', "<text>", 0, "Add text in a new line (up to 8 lines). \\n will be replaced by a newline", 2},
 	{ "align", 'a', "<l|c|r>", 0, "Align text (when printing multiple lines)", 2},
 
 	{ 0, 0, 0, 0, "other commands:", 3},
@@ -557,6 +559,58 @@ void add_job(job_type_t type, int n, char *line)
 	last_added_job = new_job;
 }
 
+void add_text(struct argp_state *state, char *arg, bool new_job)
+{
+	char *p = arg;
+	bool first_part = true;
+	do {
+		char *next1 = strstr(p, "\\n");
+		char *next2 = strchr(p, '\n');
+		char *next = NULL;
+		char *p_next = NULL;
+		int skip = 0;
+
+		if (next1 && next2) {
+			if (next1 < next2) {
+				next = next1;
+				skip = 2;
+			} else {
+				next = next2;
+				skip = 1;
+			}
+		} else if (next1) {
+			next = next1;
+			skip = 2;
+		} else if (next2) {
+			next = next2;
+			skip = 1;
+		}
+
+		if (next) {
+			*next = '\0';
+			p_next = next + skip;
+		} else {
+			p_next = NULL;
+		}
+
+		if (new_job && first_part) {
+			add_job(JOB_TEXT, 1, p);
+		} else {
+			if (!last_added_job || last_added_job->type != JOB_TEXT) {
+				add_job(JOB_TEXT, 1, p);
+			} else {
+				if (last_added_job->n >= MAX_LINES) {
+					argp_failure(state, 1, EINVAL, _("Only up to %d lines are supported"), MAX_LINES);
+					return;
+				}
+				last_added_job->lines[last_added_job->n++] = p;
+			}
+		}
+		p = p_next;
+		first_part = false;
+	} while (p);
+}
+
 static error_t parse_opt(int key, char *arg, struct argp_state *state)
 {
 	struct arguments *arguments = (struct arguments *)state->input;
@@ -591,7 +645,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 			break;
 		case 't': // text
 			//printf("adding text job with alignment %i\n", arguments->align);
-			add_job(JOB_TEXT, 1, arg);
+			add_text(state, arg, true);
 			break;
 		case 'c': // cutmark
 			add_job(JOB_CUTMARK, 0, NULL);
@@ -618,17 +672,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 			}
 			break;
 		case 'n': // newline
-			if (!last_added_job || last_added_job->type != JOB_TEXT) {
-				add_job(JOB_TEXT, 1, arg);
-				break;
-			}
-
-			if (last_added_job->n >= MAX_LINES) { // max number of lines reached
-				argp_failure(state, 1, EINVAL, _("Only up to %d lines are supported"), MAX_LINES);
-				break;
-			}
-
-			last_added_job->lines[last_added_job->n++] = arg;
+			add_text(state, arg, false);
 			break;
 		case 20: // info
 			arguments->info = true;

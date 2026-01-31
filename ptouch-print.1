@@ -59,8 +59,11 @@ limited to the printer's printable area.
 .TP
 .BR \-\-text\  \fItext
 Print the given text at the current position. Text including spaces must be
-enclosed in question marks.
-To print a text in multiple lines, give multiple text arguments.
+enclosed in quotation marks.
+Literal '\\n' or actual newline characters in the text will be treated as
+line breaks.
+To print a text in multiple lines, either use '\\n' or give multiple text
+arguments.
 Also see the
 .BR EXAMPLES
 section.
@@ -110,6 +113,10 @@ Printer device could not been opened.
 .TP
 \fBptouch-print\fR \fI--text\fR 'Hello World'
 Print the text 'Hello World' in one line
+.TP
+\fBptouch-print\fR \fI--text\fR 'Hello\nWorld'
+Print the text 'Hello World' in two lines ('Hello' in the first line
+and 'World' in the second line).
 .TP
 \fBptouch-print\fR \fI--text\fR 'Hello' 'World'
 Print the text 'Hello World' in two lines ('Hello' in the first line

@@ -671,7 +671,13 @@ int main(int argc, char *argv[])
 
 	argp_parse(&argp, argc, argv, 0, 0, &arguments);
 
-	if (!arguments.forced_tape_width) {
+	if (arguments.save_png && !arguments.info) {
+		if (arguments.forced_tape_width) {
+			print_width = arguments.forced_tape_width;
+		} else {
+			print_width = 76;	/* default to 12mm tape */
+		}
+	} else {
 		if ((ptouch_open(&ptdev)) < 0) {
 			return 5;
 		}
@@ -688,8 +694,6 @@ int main(int argc, char *argv[])
 		if (print_width > max_print_width) {
 			print_width = max_print_width;
 		}
-	} else {	// --forced_tape_width together with --writepng
-		print_width = arguments.forced_tape_width;
 	}
 
 	if (arguments.info) {

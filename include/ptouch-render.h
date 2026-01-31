@@ -1,7 +1,6 @@
 #ifndef PTOUCH_RENDER_H
 #define PTOUCH_RENDER_H
 
-#include <gd.h>
 #include <stdbool.h>
 #include <argp.h>
 #include "ptouch.h"
@@ -27,19 +26,32 @@ struct render_arguments {
 
 extern struct render_arguments render_args;
 
-gdImage *image_load(const char *file);
-int write_png(gdImage *im, const char *file);
+/* Opaque image type used instead of gdImage */
+typedef struct image_t {
+	int width;  /* width in px (x dimension, formerly gdImageSX) */
+	int height; /* height in px (y dimension, formerly gdImageSY) */
+	unsigned char *data; /* row-major, 0 = white, 1 = black */
+} image_t;
+
+/* Image creation / destruction / IO (implemented using native GNUstep rendering) */
+image_t *image_load(const char *file);
+int write_png(image_t *im, const char *file);
+void *image_png_ptr(image_t *im, int *size); /* returns malloc'd PNG data, free with image_free */
+void image_free(void *ptr);
+void image_destroy(image_t *im);
+
+/* Raster / measurement / rendering */
 void rasterline_setpixel(uint8_t* rasterline, size_t size, int pixel);
 int get_baselineoffset(char *text, char *font, int fsz);
 int find_fontsize(int want_px, char *font, char *text);
 int needed_width(char *text, char *font, int fsz);
 int offset_x(char *text, char *font, int fsz);
-gdImage *render_text(char *font, char *line[], int lines, int print_width);
-gdImage *img_append(gdImage *in_1, gdImage *in_2);
-gdImage *img_cutmark(int print_width);
-gdImage *img_padding(int print_width, int length);
-void invert_image(gdImage *im);
-int print_img(ptouch_dev ptdev, gdImage *im, int chain, int precut);
+image_t *render_text(char *font, char *line[], int lines, int print_width);
+image_t *img_append(image_t *in_1, image_t *in_2);
+image_t *img_cutmark(int print_width);
+image_t *img_padding(int print_width, int length);
+void invert_image(image_t *im);
+int print_img(ptouch_dev ptdev, image_t *im, int chain, int precut);
 
 /* Job management */
 extern job_t *jobs;

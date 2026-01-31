@@ -5,13 +5,21 @@ PtouchGUI_OBJC_FILES = src-gui/PtouchGUI.m
 PtouchGUI_C_FILES = src/libptouch.c src/ptouch-render.c
 
 # Include directories
-ADDITIONAL_INCLUDE_DIRS += -Iinclude -Ibuild
+ADDITIONAL_INCLUDE_DIRS += -Iinclude
 
 # Library dependencies
-ADDITIONAL_GUI_LIBS += $(shell pkg-config --libs gdlib libusb-1.0)
-ADDITIONAL_CPPFLAGS += $(shell pkg-config --cflags gdlib libusb-1.0) -DUSING_CMAKE=1
+ADDITIONAL_GUI_LIBS += $(shell pkg-config --libs libusb-1.0 gnustep-base gnustep-gui 2>/dev/null)
+ADDITIONAL_CPPFLAGS += $(shell pkg-config --cflags libusb-1.0 gnustep-base gnustep-gui 2>/dev/null) -DUSING_CMAKE=0
 
 include $(GNUSTEP_MAKEFILES)/application.make
+
+# Command-line tool: ptouch-print
+TOOL_NAME = ptouch-print
+ptouch_print_C_FILES = src/ptouch-print.c src/libptouch.c src/ptouch-render.c
+ptouch_print_OBJC_FILES = src/ptouch-render-gnustep.m
+ptouch_print_LDFLAGS += $(shell pkg-config --libs libusb-1.0 gnustep-base gnustep-gui 2>/dev/null)
+ptouch_print_CFLAGS += $(shell pkg-config --cflags libusb-1.0 gnustep-base gnustep-gui 2>/dev/null)
+include $(GNUSTEP_MAKEFILES)/tool.make
 
 # Local install hook: install udev rules on Linux and devd rule on FreeBSD
 install:: install-local

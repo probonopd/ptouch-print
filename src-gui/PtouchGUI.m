@@ -256,13 +256,13 @@
     int max_print_width = ptouch_get_max_width(ptdev);
     if (print_width > max_print_width) print_width = max_print_width;
 
-    gdImage *out = NULL;
+    image_t *out = NULL;
     for (job_t *job = jobs; job != NULL; job = job->next) {
         if (job->type == JOB_TEXT) {
-            gdImage *im = render_text(render_args.font_file, job->lines, job->n, print_width);
+            image_t *im = render_text(render_args.font_file, job->lines, job->n, print_width);
             if (im) {
                 out = img_append(out, im);
-                gdImageDestroy(im);
+                image_destroy(im);
             }
         }
     }
@@ -273,7 +273,7 @@
         bool precut = ([precutButton state] == NSOnState);
         print_img(ptdev, out, chain, precut);
         ptouch_finalize(ptdev, chain);
-        gdImageDestroy(out);
+        image_destroy(out);
         [statusLabel setStringValue: @"Printed successfully."];
     } else {
         [statusLabel setStringValue: @"Nothing to print."];
@@ -296,13 +296,13 @@
     int print_width = [tapeWidthField intValue];
     if (print_width <= 0) print_width = 76;
     
-    gdImage *out = NULL;
+    image_t *out = NULL;
     for (job_t *job = jobs; job != NULL; job = job->next) {
         if (job->type == JOB_TEXT) {
-            gdImage *im = render_text(render_args.font_file, job->lines, job->n, print_width);
+            image_t *im = render_text(render_args.font_file, job->lines, job->n, print_width);
             if (im) {
                 out = img_append(out, im);
-                gdImageDestroy(im);
+                image_destroy(im);
             }
         }
     }
@@ -315,7 +315,7 @@
         } else {
             [statusLabel setStringValue: @"Error saving PNG"];
         }
-        gdImageDestroy(out);
+        image_destroy(out);
     } else {
         [statusLabel setStringValue: @"Nothing to render."];
     }
@@ -386,7 +386,7 @@
         if ([invertButton state] == NSOnState) invert_image(out);
         
         int size;
-        void *data = gdImagePngPtr(out, &size);
+        void *data = image_png_ptr(out, &size);
         if (data) {
             NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
             NSData *nsData = [NSData dataWithBytes: data length: size];
@@ -395,7 +395,7 @@
                 [previewImageView setImage: nsImage];
                 [nsImage release];
             }
-            gdFree(data);
+            image_free(data);
             [pool drain];
         }
         gdImageDestroy(out);

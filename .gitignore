@@ -1,7 +1,9 @@
 # Build and CMake files
 CMakeFiles/
-CMakeCache.txt
+CMakeLists.txt
+cmake/
 cmake_install.cmake
+CMakeCache.txt
 Makefile
 build/
 
@@ -34,3 +36,7 @@ ptouch.pot
 *.log
 Info-gnustep.plist
 PtouchGUI.app
+gdb.txt
+*.pot
+*.po
+*.mo

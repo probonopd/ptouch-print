@@ -1,8 +1,21 @@
 include $(GNUSTEP_MAKEFILES)/common.make
 
+# Require GNUstep development libraries (build will fail with clear message if missing)
+GNUSUPPORT := $(shell pkg-config --exists gnustep-base && pkg-config --exists gnustep-gui && echo yes || echo no)
+ifeq ($(GNUSUPPORT),no)
+$(error GNUstep development libraries not found. Install packages providing pkg-config entries 'gnustep-base' and 'gnustep-gui')
+endif
+
 APP_NAME = PtouchGUI
 PtouchGUI_OBJC_FILES = src-gui/PtouchGUI.m
 PtouchGUI_C_FILES = src/libptouch.c src/ptouch-render.c
+
+# Include directories
+ADDITIONAL_INCLUDE_DIRS += -Iinclude
+
+# Library dependencies (GNUstep is required)
+ADDITIONAL_GUI_LIBS += $(shell pkg-config --libs libusb-1.0 gnustep-base gnustep-gui)
+ADDITIONAL_CPPFLAGS += $(shell pkg-config --cflags libusb-1.0 gnustep-base gnustep-gui) -DUSING_CMAKE=0
 
 # Include directories
 ADDITIONAL_INCLUDE_DIRS += -Iinclude

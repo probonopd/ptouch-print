@@ -47,6 +47,7 @@ struct arguments {
 	int copies;
 	bool debug;
 	bool info;
+	bool invert;
 	char *font_file;
 	int font_size;
 	int forced_tape_width;
@@ -73,6 +74,7 @@ int write_png(gdImage *im, const char *file);
 gdImage *img_append(gdImage *in_1, gdImage *in_2);
 gdImage *img_cutmark(int print_width);
 gdImage *render_text(char *font, char *line[], int lines, int print_width);
+void invert_image(gdImage *im);
 void unsupported_printer(ptouch_dev ptdev);
 void add_job(job_type_t type, int n, char *line);
 static error_t parse_opt(int key, char *arg, struct argp_state *state);
@@ -85,6 +87,7 @@ static struct argp_option options[] = {
 	// name, key, arg, flags, doc, group
 	{ 0, 0, 0, 0, "options:", 1},
 	{ "debug", 1, 0, 0, "Enable debug output", 1},
+	{ "invert", 30, 0, 0, "Invert output (print white on black background)", 1},
 	{ "font", 2, "<file>", 0, "Use font <file> or <name>", 1},
 	{ "fontsize", 3, "<size>", 0, "Manually set font size", 1},
 	{ "writepng", 4, "<file>", 0, "Instead of printing, write output to png <file>", 1},
@@ -116,6 +119,7 @@ struct arguments arguments = {
 	.copies = 1,
 	.debug = false,
 	.info = false,
+	.invert = false,
 	//.font_file = "/usr/share/fonts/TTF/Ubuntu-M.ttf",
 	//.font_file = "Ubuntu:medium",
 	.font_file = "DejaVuSans",
@@ -498,6 +502,34 @@ gdImage *img_padding(int print_width, int length)
 	return out;
 }
 
+/* Invert image colors: make light pixels dark and vice versa.
+   Operates only within the image bounds so it will not create pixels
+   outside the printable area. */
+void invert_image(gdImage *im)
+{
+	if (!im) return;
+	int sx = gdImageSX(im);
+	int sy = gdImageSY(im);
+	int white = gdImageColorClosest(im, 255, 255, 255);
+	int black = gdImageColorClosest(im, 0, 0, 0);
+	for (int x = 0; x < sx; ++x) {
+		for (int y = 0; y < sy; ++y) {
+			int c = gdImageGetPixel(im, x, y);
+			int r = gdImageRed(im, c);
+			int g = gdImageGreen(im, c);
+			int b = gdImageBlue(im, c);
+			int lum = r + g + b;
+			if (lum > ((255*3)/2)) {
+				/* was light -> make dark */
+				gdImageSetPixel(im, x, y, black);
+			} else {
+				/* was dark -> make light */
+				gdImageSetPixel(im, x, y, white);
+			}
+		}
+	}
+}
+
 void add_job(job_type_t type, int n, char *line)
 {
 	job_t *new_job = (job_t*)malloc(sizeof(job_t));
@@ -538,6 +570,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 			break;
 		case 3: // fontsize
 			arguments->font_size = strtol(arg, NULL, 10);
+			break;
+		case 30: // invert
+			arguments->invert = true;
 			break;
 		case 4: // writepng
 			arguments->save_png = arg;
@@ -726,6 +761,12 @@ int main(int argc, char *argv[])
 	jobs = last_added_job = NULL;
 
 	if (out) {
+		/* If requested, invert the whole output (white text on black background).
+		   This operates only within the image bounds (which are already capped
+		   to the printer's printable area), so it won't exceed the printable area. */
+		if (arguments.invert) {
+			invert_image(out);
+		}
 		if (arguments.save_png) {
 			write_png(out, arguments.save_png);
 		} else {

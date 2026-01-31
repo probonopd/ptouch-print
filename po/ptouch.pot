@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ptouch-print\n"
 "Report-Msgid-Bugs-To: dominic@familie-radermacher.ch\n"
-"POT-Creation-Date: 2026-01-23 08:08+0100\n"
+"POT-Creation-Date: 2026-01-31 12:23+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -153,149 +153,149 @@ msgstr ""
 msgid "debug: called ptouch_sendraster() with NULL ptdev\n"
 msgstr ""
 
-#: src/ptouch-print.c:151
+#: src/ptouch-print.c:155
 #, c-format
 msgid "nothing to print\n"
 msgstr ""
 
-#: src/ptouch-print.c:159
+#: src/ptouch-print.c:163
 #, c-format
 msgid "image is too large (%ipx x %ipx)\n"
 msgstr ""
 
-#: src/ptouch-print.c:160
+#: src/ptouch-print.c:164
 #, c-format
 msgid "maximum printing width for this tape is %ipx\n"
 msgstr ""
 
-#: src/ptouch-print.c:163
+#: src/ptouch-print.c:167
 #, c-format
 msgid "image size (%ipx x %ipx)\n"
 msgstr ""
 
-#: src/ptouch-print.c:173
+#: src/ptouch-print.c:177
 #, c-format
 msgid "ptouch_rasterstart() failed\n"
 msgstr ""
 
-#: src/ptouch-print.c:179
+#: src/ptouch-print.c:183
 #, c-format
 msgid "send print information command\n"
 msgstr ""
 
-#: src/ptouch-print.c:185
+#: src/ptouch-print.c:189
 #, c-format
 msgid "send PT-D460BT magic commands\n"
 msgstr ""
 
-#: src/ptouch-print.c:192
+#: src/ptouch-print.c:196
 #, c-format
 msgid "send precut command\n"
 msgstr ""
 
-#: src/ptouch-print.c:201
+#: src/ptouch-print.c:205
 #, c-format
 msgid "send PT-D460BT chain commands\n"
 msgstr ""
 
-#: src/ptouch-print.c:213
+#: src/ptouch-print.c:217
 #, c-format
 msgid "ptouch_sendraster() failed\n"
 msgstr ""
 
-#: src/ptouch-print.c:262
+#: src/ptouch-print.c:266
 #, c-format
 msgid "writing image '%s' failed\n"
 msgstr ""
 
-#: src/ptouch-print.c:284
+#: src/ptouch-print.c:288
 #, c-format
 msgid "debug: o baseline offset - %d\n"
 msgstr ""
 
-#: src/ptouch-print.c:285
+#: src/ptouch-print.c:289
 #, c-format
 msgid "debug: text baseline offset - %d\n"
 msgstr ""
 
-#: src/ptouch-print.c:344
+#: src/ptouch-print.c:348
 #, c-format
 msgid "render_text(): %i lines, font = '%s', align = '%c'\n"
 msgstr ""
 
-#: src/ptouch-print.c:347
+#: src/ptouch-print.c:351
 #, c-format
 msgid "warning: font config not available\n"
 msgstr ""
 
-#: src/ptouch-print.c:351
+#: src/ptouch-print.c:355
 #, c-format
 msgid "setting font size=%i\n"
 msgstr ""
 
-#: src/ptouch-print.c:355
+#: src/ptouch-print.c:359
 #, c-format
 msgid "could not estimate needed font size\n"
 msgstr ""
 
-#: src/ptouch-print.c:362
+#: src/ptouch-print.c:366
 #, c-format
 msgid "choosing font size=%i\n"
 msgstr ""
 
-#: src/ptouch-print.c:378 src/ptouch-print.c:412
+#: src/ptouch-print.c:382 src/ptouch-print.c:416
 #, c-format
 msgid "error in gdImageStringFT: %s\n"
 msgstr ""
 
-#: src/ptouch-print.c:592
+#: src/ptouch-print.c:627
 #, c-format
 msgid "Only up to %d lines are supported"
 msgstr ""
 
-#: src/ptouch-print.c:605
+#: src/ptouch-print.c:640
 msgid "No arguments supported"
 msgstr ""
 
-#: src/ptouch-print.c:610
+#: src/ptouch-print.c:645
 msgid "Option --writepng missing"
 msgstr ""
 
-#: src/ptouch-print.c:613
+#: src/ptouch-print.c:648
 msgid "Options --force_tape_width and --info can't be used together"
 msgstr ""
 
-#: src/ptouch-print.c:644
+#: src/ptouch-print.c:679
 #, c-format
 msgid "ptouch_init() failed\n"
 msgstr ""
 
-#: src/ptouch-print.c:647
+#: src/ptouch-print.c:682
 #, c-format
 msgid "ptouch_getstatus() failed\n"
 msgstr ""
 
-#: src/ptouch-print.c:661
+#: src/ptouch-print.c:696
 #, c-format
 msgid "maximum printing width for this printer is %ldpx\n"
 msgstr ""
 
-#: src/ptouch-print.c:662
+#: src/ptouch-print.c:697
 #, c-format
 msgid "maximum printing width for this tape is %ldpx\n"
 msgstr ""
 
-#: src/ptouch-print.c:687
+#: src/ptouch-print.c:722
 #, c-format
 msgid "failed to load image file\n"
 msgstr ""
 
-#: src/ptouch-print.c:696
+#: src/ptouch-print.c:731
 #, c-format
 msgid "could not render text\n"
 msgstr ""
 
-#: src/ptouch-print.c:735
+#: src/ptouch-print.c:776
 #, c-format
 msgid "ptouch_finalize(%d) failed\n"
 msgstr ""

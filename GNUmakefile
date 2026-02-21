@@ -59,6 +59,13 @@ render_test_LDFLAGS += -lgnustep-gui
 render_test_LDFLAGS += -lusb-1.0
 render-test_LDFLAGS = $(render_test_LDFLAGS)
 render_test_CFLAGS = $(render_test_CFLAGS)
+
+# Workaround: gnustep-make sometimes does not create object directories for
+# tools whose names contain a hyphen.  Ensure the subdirectories exist so
+# compilation of render-test (and any other hyphenated tools) succeeds.
+# This runs when the Makefile is parsed, before any build steps.
+$(shell mkdir -p obj/render-test.obj/src)
+
 include $(GNUSTEP_MAKEFILES)/tool.make
 
 # Status monitoring utility to observe printer status bytes and report diffs
@@ -68,6 +75,10 @@ status-monitor_C_FILES = $(status_monitor_C_FILES)
 status_monitor_LDFLAGS += -lusb-1.0
 status-monitor_LDFLAGS = $(status_monitor_LDFLAGS)
 status-monitor_CFLAGS = $(status_monitor_CFLAGS)
+
+# Workaround for hyphenated tool names as explained above
+$(shell mkdir -p obj/status-monitor.obj/src)
+
 include $(GNUSTEP_MAKEFILES)/tool.make
 
 # Local install hook: install udev rules on Linux and devd rule on FreeBSD
